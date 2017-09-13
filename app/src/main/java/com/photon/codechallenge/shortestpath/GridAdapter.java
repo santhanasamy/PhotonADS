@@ -16,18 +16,18 @@ import java.util.List;
 
 /**
  *
- *
+ * Adapter
  */
 public class GridAdapter extends RecyclerView.Adapter<GridAdapter.GridViewHolder> {
 
-    private List<String> mCostList;
+    private List<String> mCostList = null;
 
     public GridAdapter(List<String> aData) {
         mCostList = aData;
     }
 
     @Override
-    public GridViewHolder onCreateViewHolder( ViewGroup parent, int viewType ) {
+    public GridViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View layoutView = LayoutInflater
                 .from(parent.getContext())
                 .inflate(R.layout.grid_item, null);
@@ -35,7 +35,7 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.GridViewHolder
     }
 
     @Override
-    public void onBindViewHolder( final GridViewHolder holder, final int position ) {
+    public void onBindViewHolder(final GridViewHolder holder, final int position) {
 
         final String name = mCostList.get(position);
 
@@ -49,23 +49,23 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.GridViewHolder
         TextWatcher lWatcher = new TextWatcher() {
 
             @Override
-            public void beforeTextChanged( CharSequence charSequence, int i, int i1, int i2 ) {
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
             }
 
             @Override
-            public void onTextChanged( CharSequence charSequence, int i, int i1, int i2 ) {
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
             }
 
             @Override
-            public void afterTextChanged( Editable editable ) {
+            public void afterTextChanged(Editable editable) {
                 mCostList.set(position, editable.toString());
             }
         };
 
         TextWatcher lTempWatcher = (TextWatcher) holder.mGridItemTxtView.getTag();
-        if(null != lTempWatcher) {
+        if (null != lTempWatcher) {
             holder.mGridItemTxtView.removeTextChangedListener(lTempWatcher);
         }
         holder.mGridItemTxtView.setText(name);
@@ -81,28 +81,44 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.GridViewHolder
         return mCostList.size();
     }
 
+    /**
+     * Method to get the data set used by the adapter.
+     *
+     * @return List of cost.
+     */
     public List<String> getData() {
         return mCostList;
     }
 
-    public void add( int position, String item ) {
+    public void add(int position, String item) {
         mCostList.add(position, item);
         notifyItemInserted(position);
     }
 
-    public void remove( int position ) {
+    public void remove(int position) {
         mCostList.remove(position);
         notifyItemRemoved(position);
     }
 
     private List<Integer> mSelectedResult;
 
-    public void updateProgress( int[][] aResult ) {
+    /**
+     * Method to feed the cost finding progress updates from the background to UI(RecyclerView)
+     *
+     * @param aResult 2D Matrix representing the lowest cost path.
+     *                In the supplied matrix, Cells with the value "999" is used
+     *                to traverse along the path.
+     */
+    public void updateProgress(int[][] aResult) {
 
         mSelectedResult = CommonUtils.convertArrayToIntList(aResult);
         notifyDataSetChanged();
     }
 
+    /**
+     * Method to clear the adapter and reset the cost
+     * values with the default value "0"
+     */
     public void clear() {
 
         mSelectedResult = null;
@@ -112,6 +128,9 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.GridViewHolder
         notifyDataSetChanged();
     }
 
+    /**
+     * View holder
+     */
     public class GridViewHolder extends RecyclerView.ViewHolder {
 
         public TextView mGridItemTxtView;

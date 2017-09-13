@@ -46,32 +46,32 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int UPDATE_PROGRESS = 101;
 
-    private static final int[][] DEFAULT_MATRIX = new int[][] {
+    private static final int[][] DEFAULT_MATRIX = new int[][]{
             {
                     0, 0, 0, 0, 0, 0, 0, 0, 0, 0
             }, {
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-            }, {
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-            }, {
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-            }, {
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-            }, {
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-            }, {
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-            }, {
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-            }, {
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-            }, {
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-            }
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    }, {
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    }, {
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    }, {
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    }, {
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    }, {
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    }, {
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    }, {
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    }, {
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    }
     };
 
     @Override
-    protected void onCreate( Bundle savedInstanceState ) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         mCalculateButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
-            public void onClick( View aView ) {
+            public void onClick(View aView) {
 
                 Message lMsg = mShortestPathHandler.obtainMessage();
                 lMsg.obj = CommonUtils.convertListToIntArray(mAdapter.getData());
@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
         mClearButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
-            public void onClick( View aView ) {
+            public void onClick(View aView) {
                 mAdapter.clear();
                 mResultStatusTxtView.setText("");
                 mResultCostTxtView.setText("");
@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
 
         mUIHandler = new Handler() {
             @Override
-            public void handleMessage( Message msg ) {
+            public void handleMessage(Message msg) {
 
                 if (msg.what == UPDATE_RESULT) {
                     updateUI((Integer) msg.obj);
@@ -125,7 +125,12 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void prepareUI( int[][] aData ) {
+    /**
+     * Initialize the UI with the supplied 2D matrix.
+     *
+     * @param aData
+     */
+    private void prepareUI(int[][] aData) {
 
         if (aData == null || aData.length == 0 || aData.length > CommonUtils.UI_MAX_ROW) {
             Toast.makeText(this, "Invalid Input", Toast.LENGTH_SHORT).show();
@@ -144,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
         lThread.start();
         mShortestPathHandler = new Handler(lThread.getLooper()) {
             @Override
-            public void handleMessage( Message msg ) {
+            public void handleMessage(Message msg) {
                 int lResult = CommonUtils
                         .findShortestPath((int[][]) msg.obj, new CommonUtils.UIProgressListener() {
 
@@ -152,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
                             public void onProgressUpdate(
                                     Map<Integer, String> aResultIndex,
                                     int aRowCount,
-                                    int aColumnCount ) {
+                                    int aColumnCount) {
 
                                 Message lMsg = mUIHandler.obtainMessage(UPDATE_PROGRESS);
                                 lMsg.obj = aResultIndex;
@@ -176,14 +181,26 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void updateUI( int aResultCost ) {
+    /**
+     * Method to update the result in the UI
+     *
+     * @param aResultCost Minimum cost.
+     */
+    private void updateUI(int aResultCost) {
         mResultStatusTxtView.setText("" + CommonUtils.getStatus());
         mResultCostTxtView.setText("" + aResultCost);
         mResultPathTxtView.setText("" + CommonUtils.getPath());
 
     }
 
-    private void updateProgress( Map<Integer, String> aProgress, int aRowCount, int aColumnCount ) {
+    /**
+     * Update the minimum cost finding progress in the UI.
+     *
+     * @param aProgress    The path which is identified in the current moment, represented as a Map
+     * @param aRowCount    No of rows.
+     * @param aColumnCount No of columns.
+     */
+    private void updateProgress(Map<Integer, String> aProgress, int aRowCount, int aColumnCount) {
 
         int[][] result = new int[aRowCount][aColumnCount];
 
