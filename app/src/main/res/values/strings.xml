@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Shortest Path</string>
+    <string name="calculate_shortest_path">Calculate Path</string>
+    <string name="clear">Clear</string>
 </resources>

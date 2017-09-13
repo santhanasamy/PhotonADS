@@ -355,6 +355,5 @@ public class DataValidationTest {
         assertEquals(CommonUtils.getStatus(), "Yes");
         assertEquals(CommonUtils.getPath(), "[1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1]");
 
-
     }
 }

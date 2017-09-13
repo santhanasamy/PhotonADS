@@ -1,6 +1,8 @@
 
 package com.photon.codechallenge.shortestpath.utils;
 
+import android.text.TextUtils;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -160,8 +162,7 @@ public class CommonUtils {
         else if (sMinCost == 0 && sIMinCost == Integer.MAX_VALUE) {
             sStatus = true;
             System.out.println("Yes");
-        }
-        else {
+        } else {
             sStatus = false;
             if (sIMinCost != Integer.MAX_VALUE && sMinCost == Integer.MAX_VALUE) {
                 sMinCost = sIMinCost;
@@ -218,6 +219,7 @@ public class CommonUtils {
                 if (sIMinCost == Integer.MAX_VALUE || lCurrentCost - lCurrentValue > sIMinCost) {
                     sIMinCost = lCurrentCost - lCurrentValue;
                 }
+                sRowIndex.remove(aCol);
             }
             return;
         }
@@ -232,7 +234,11 @@ public class CommonUtils {
 
             if (sMinCost > lCurrentCost) {
                 sMinCost = lCurrentCost;
-                sResultRowIndex = new LinkedHashMap<>(sRowIndex);
+                if (null != sRowIndex) {
+                    sResultRowIndex = new LinkedHashMap<>(sRowIndex);
+                } else {
+                    sResultRowIndex = new LinkedHashMap<>();
+                }
                 if (null != aListener) {
                     aListener.onProgressUpdate(sResultRowIndex, aInput.length, aInput[0].length);
                 }
@@ -373,5 +379,30 @@ public class CommonUtils {
             }
         }
         return lList;
+    }
+
+    /**
+     * Method to convert 2D array to List<Integer>
+     *
+     * @param aList
+     * @return
+     */
+    public static int[][] convertListToIntArray( List<String> aList ) {
+
+        int[][] lData = new int[CommonUtils.UI_MAX_ROW][CommonUtils.UI_MAX_COLUMN];
+
+        for (int i = 0; i < aList.size(); i++) {
+
+            int lRow = i / CommonUtils.UI_MAX_COLUMN;
+            int lColumn = i % CommonUtils.UI_MAX_COLUMN;
+
+            String lCost = aList.get(i);
+            if (TextUtils.isEmpty(lCost)) {
+                lData[lRow][lColumn] = 0;
+            } else {
+                lData[lRow][lColumn] = Integer.parseInt(aList.get(i));
+            }
+        }
+        return lData;
     }
 }

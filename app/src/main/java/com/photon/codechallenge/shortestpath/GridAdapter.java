@@ -3,6 +3,8 @@ package com.photon.codechallenge.shortestpath;
 
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,10 +20,10 @@ import java.util.List;
  */
 public class GridAdapter extends RecyclerView.Adapter<GridAdapter.GridViewHolder> {
 
-    private List<String> values;
+    private List<String> mCostList;
 
     public GridAdapter(List<String> aData) {
-        values = aData;
+        mCostList = aData;
     }
 
     @Override
@@ -33,31 +35,59 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.GridViewHolder
     }
 
     @Override
-    public void onBindViewHolder( GridViewHolder holder, int position ) {
+    public void onBindViewHolder( final GridViewHolder holder, final int position ) {
 
-        final String name = values.get(position);
+        final String name = mCostList.get(position);
 
         if (null != mSelectedResult
                 && CommonUtils.CHOSEN_PATH_INDICATOR == mSelectedResult.get(position)) {
-            holder.mGridItemTxtView.setBackgroundColor(Color.RED);
+            holder.mRootView.setBackgroundColor(Color.RED);
         } else {
-            holder.mGridItemTxtView.setBackgroundColor(Color.WHITE);
+            holder.mRootView.setBackgroundColor(Color.WHITE);
         }
+
+        TextWatcher lWatcher = new TextWatcher() {
+
+            @Override
+            public void beforeTextChanged( CharSequence charSequence, int i, int i1, int i2 ) {
+
+            }
+
+            @Override
+            public void onTextChanged( CharSequence charSequence, int i, int i1, int i2 ) {
+
+            }
+
+            @Override
+            public void afterTextChanged( Editable editable ) {
+                // int lRow = position / CommonUtils.UI_MAX_COLUMN;
+                // int lColumn = position % CommonUtils.UI_MAX_COLUMN;
+                // System.out.println("[R,C][" + lRow +"," + lColumn +"]");
+                mCostList.set(position, editable.toString());
+            }
+        };
+        holder.mGridItemTxtView.addTextChangedListener(lWatcher);
+        holder.mGridItemTxtView.setTag(lWatcher);
+        holder.mGridItemTxtView.setTag(R.id.grid_item, position);
         holder.mGridItemTxtView.setText(name);
     }
 
     @Override
     public int getItemCount() {
-        return values.size();
+        return mCostList.size();
+    }
+
+    public List<String> getData() {
+        return mCostList;
     }
 
     public void add( int position, String item ) {
-        values.add(position, item);
+        mCostList.add(position, item);
         notifyItemInserted(position);
     }
 
     public void remove( int position ) {
-        values.remove(position);
+        mCostList.remove(position);
         notifyItemRemoved(position);
     }
 
@@ -69,14 +99,25 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.GridViewHolder
         notifyDataSetChanged();
     }
 
-    class GridViewHolder extends RecyclerView.ViewHolder {
+    public void clear() {
+
+        mSelectedResult = null;
+        for (int i = 0; i < mCostList.size(); i++) {
+            mCostList.set(i, "0");
+        }
+        notifyDataSetChanged();
+    }
+
+    public class GridViewHolder extends RecyclerView.ViewHolder {
 
         public TextView mGridItemTxtView;
 
+        public View mRootView;
+
         public GridViewHolder(View aView) {
             super(aView);
+            mRootView = aView;
             mGridItemTxtView = aView.findViewById(R.id.grid_item);
         }
     }
-
 }

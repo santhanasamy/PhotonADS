@@ -8,6 +8,9 @@ import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,6 +28,12 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView mResultPathTxtView = null;
 
+    private Button mCalculateButton = null;
+
+    private Button mClearButton = null;
+
+    private LinearLayout mResultContainer = null;
+
     private GridAdapter mAdapter = null;
 
     private RecyclerView.LayoutManager mLayoutManager = null;
@@ -37,18 +46,28 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int UPDATE_PROGRESS = 101;
 
-    private static final int[][] TEST_CASE_1 = new int[][] {
+    private static final int[][] DEFAULT_MATRIX = new int[][] {
             {
-                    3, 4, 1, 2, 8, 6
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
             }, {
-                    6, 1, 8, 2, 7, 4
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
             }, {
-                    5, 9, 3, 9, 9, 5
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
             }, {
-                    8, 4, 1, 3, 2, 6
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
             }, {
-                    3, 7, 2, 8, 6, 4
-            },
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            }, {
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            }, {
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            }, {
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            }, {
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            }, {
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            }
     };
 
     @Override
@@ -63,6 +82,33 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView = (RecyclerView) findViewById(R.id.input_grid_view);
         mRecyclerView.setHasFixedSize(true);
 
+        mCalculateButton = (Button) findViewById(R.id.calculate_btn);
+        mClearButton = (Button) findViewById(R.id.clear_btn);
+        mCalculateButton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick( View aView ) {
+
+                Message lMsg = mShortestPathHandler.obtainMessage();
+                lMsg.obj = CommonUtils.convertListToIntArray(mAdapter.getData());
+                mShortestPathHandler.sendMessage(lMsg);
+            }
+        });
+        mClearButton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick( View aView ) {
+                mAdapter.clear();
+                mResultStatusTxtView.setText("");
+                mResultCostTxtView.setText("");
+                mResultPathTxtView.setText("");
+            }
+        });
+
+        mResultContainer = (LinearLayout) findViewById(R.id.result_container);
+
+        // mResultContainer.setVisibility(View.INVISIBLE);
+
         mUIHandler = new Handler() {
             @Override
             public void handleMessage( Message msg ) {
@@ -75,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         };
-        prepareUI(TEST_CASE_1);
+        prepareUI(DEFAULT_MATRIX);
 
     }
 
@@ -91,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
         mAdapter = new GridAdapter(CommonUtils.convertArrayToList(aData));
 
         mRecyclerView.setAdapter(mAdapter);
-        mLayoutManager = new GridLayoutManager(this, TEST_CASE_1.length + 1);
+        mLayoutManager = new GridLayoutManager(this, CommonUtils.UI_MAX_COLUMN);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         HandlerThread lThread = new HandlerThread("Shortest Path Finder");

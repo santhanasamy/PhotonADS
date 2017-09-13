@@ -1,7 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/grid_item"
-    android:layout_width="50dp"
-    android:layout_height="50dp"
-    android:gravity="center"
-    android:padding="8dp" />
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/grid_item_container"
+    android:layout_width="60dp"
+    android:layout_height="60dp"
+    android:orientation="horizontal">
+
+    <EditText
+        android:id="@+id/grid_item"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:inputType="number"
+        android:maxLines="1" />
+
+    <View
+        android:layout_width="0.5dp"
+        android:layout_height="match_parent"
+        android:background="@color/grid_divider_bg" />
+</LinearLayout>
