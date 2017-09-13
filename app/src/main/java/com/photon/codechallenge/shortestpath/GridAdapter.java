@@ -60,16 +60,20 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.GridViewHolder
 
             @Override
             public void afterTextChanged( Editable editable ) {
-                // int lRow = position / CommonUtils.UI_MAX_COLUMN;
-                // int lColumn = position % CommonUtils.UI_MAX_COLUMN;
-                // System.out.println("[R,C][" + lRow +"," + lColumn +"]");
                 mCostList.set(position, editable.toString());
             }
         };
+
+        TextWatcher lTempWatcher = (TextWatcher) holder.mGridItemTxtView.getTag();
+        if(null != lTempWatcher) {
+            holder.mGridItemTxtView.removeTextChangedListener(lTempWatcher);
+        }
+        holder.mGridItemTxtView.setText(name);
+
         holder.mGridItemTxtView.addTextChangedListener(lWatcher);
         holder.mGridItemTxtView.setTag(lWatcher);
         holder.mGridItemTxtView.setTag(R.id.grid_item, position);
-        holder.mGridItemTxtView.setText(name);
+
     }
 
     @Override
