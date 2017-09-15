@@ -2,4 +2,13 @@
     <string name="app_name">Shortest Path</string>
     <string name="calculate_shortest_path">Calculate Path</string>
     <string name="clear">Clear</string>
+
+    <string name="str_status">Status</string>
+    <string name="str_cost">Cost</string>
+    <string name="str_path">Path</string>
+
+    <string name="rows">No Of Rows</string>
+    <string name="columns">No Of Columns</string>
+
+    <string name="str_generate">Generate</string>
 </resources>

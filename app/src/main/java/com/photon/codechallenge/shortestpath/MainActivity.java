@@ -46,32 +46,34 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int UPDATE_PROGRESS = 101;
 
-    private static final int[][] DEFAULT_MATRIX = new int[][]{
+    private static final int[][] DEFAULT_MATRIX = new int[][] {
             {
                     0, 0, 0, 0, 0, 0, 0, 0, 0, 0
             }, {
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-    }, {
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-    }, {
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-    }, {
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-    }, {
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-    }, {
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-    }, {
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-    }, {
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-    }, {
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-    }
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            }, {
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            }, {
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            }, {
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            }, {
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            }, {
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            }, {
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            }, {
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            }, {
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            }
     };
 
+    private int[][] mInput = null;
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate( Bundle savedInstanceState ) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -87,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         mCalculateButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
-            public void onClick(View aView) {
+            public void onClick( View aView ) {
 
                 Message lMsg = mShortestPathHandler.obtainMessage();
                 lMsg.obj = CommonUtils.convertListToIntArray(mAdapter.getData());
@@ -97,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
         mClearButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
-            public void onClick(View aView) {
+            public void onClick( View aView ) {
                 mAdapter.clear();
                 mResultStatusTxtView.setText("");
                 mResultCostTxtView.setText("");
@@ -111,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
 
         mUIHandler = new Handler() {
             @Override
-            public void handleMessage(Message msg) {
+            public void handleMessage( Message msg ) {
 
                 if (msg.what == UPDATE_RESULT) {
                     updateUI((Integer) msg.obj);
@@ -121,7 +123,15 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         };
-        prepareUI(DEFAULT_MATRIX);
+
+        int[][] lInput = (int[][]) getIntent().getExtras().getSerializable(
+                InputCollectorActivity.KEY_INPUT_EXTRA);
+
+        mInput = DEFAULT_MATRIX;
+        if (null != lInput) {
+            mInput = lInput;
+        }
+        prepareUI(mInput);
 
     }
 
@@ -130,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
      *
      * @param aData
      */
-    private void prepareUI(int[][] aData) {
+    private void prepareUI( int[][] aData ) {
 
         if (aData == null || aData.length == 0 || aData.length > CommonUtils.UI_MAX_ROW) {
             Toast.makeText(this, "Invalid Input", Toast.LENGTH_SHORT).show();
@@ -142,14 +152,14 @@ public class MainActivity extends AppCompatActivity {
         mAdapter = new GridAdapter(CommonUtils.convertArrayToList(aData));
 
         mRecyclerView.setAdapter(mAdapter);
-        mLayoutManager = new GridLayoutManager(this, CommonUtils.UI_MAX_COLUMN);
+        mLayoutManager = new GridLayoutManager(this, mInput[0].length);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         HandlerThread lThread = new HandlerThread("Shortest Path Finder");
         lThread.start();
         mShortestPathHandler = new Handler(lThread.getLooper()) {
             @Override
-            public void handleMessage(Message msg) {
+            public void handleMessage( Message msg ) {
                 int lResult = CommonUtils
                         .findShortestPath((int[][]) msg.obj, new CommonUtils.UIProgressListener() {
 
@@ -157,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
                             public void onProgressUpdate(
                                     Map<Integer, String> aResultIndex,
                                     int aRowCount,
-                                    int aColumnCount) {
+                                    int aColumnCount ) {
 
                                 Message lMsg = mUIHandler.obtainMessage(UPDATE_PROGRESS);
                                 lMsg.obj = aResultIndex;
@@ -186,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
      *
      * @param aResultCost Minimum cost.
      */
-    private void updateUI(int aResultCost) {
+    private void updateUI( int aResultCost ) {
         mResultStatusTxtView.setText("" + CommonUtils.getStatus());
         mResultCostTxtView.setText("" + aResultCost);
         mResultPathTxtView.setText("" + CommonUtils.getPath());
@@ -196,11 +206,12 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Update the minimum cost finding progress in the UI.
      *
-     * @param aProgress    The path which is identified in the current moment, represented as a Map
-     * @param aRowCount    No of rows.
+     * @param aProgress The path which is identified in the current moment,
+     *            represented as a Map
+     * @param aRowCount No of rows.
      * @param aColumnCount No of columns.
      */
-    private void updateProgress(Map<Integer, String> aProgress, int aRowCount, int aColumnCount) {
+    private void updateProgress( Map<Integer, String> aProgress, int aRowCount, int aColumnCount ) {
 
         int[][] result = new int[aRowCount][aColumnCount];
 

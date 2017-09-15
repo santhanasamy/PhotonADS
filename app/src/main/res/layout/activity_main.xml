@@ -61,7 +61,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="Status" />
+                android:text="@string/str_status" />
 
             <TextView
                 android:id="@+id/result_status_txt_view"
@@ -82,7 +82,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="Cost" />
+                android:text="@string/str_cost" />
 
             <TextView
                 android:id="@+id/result_cost_txt_view"
@@ -103,7 +103,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="Path" />
+                android:text="@string/str_path" />
 
             <TextView
                 android:id="@+id/result_path_view"
