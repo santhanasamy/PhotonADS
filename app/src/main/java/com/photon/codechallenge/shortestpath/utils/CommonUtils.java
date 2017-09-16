@@ -383,18 +383,20 @@ public class CommonUtils {
 
     /**
      * Method to convert 2D array to List<Integer>
-     *
+     * 
      * @param aList
+     * @param aRows
+     * @param aColumns
      * @return
      */
-    public static int[][] convertListToIntArray( List<String> aList ) {
+    public static int[][] convertListToIntArray( List<String> aList, int aRows, int aColumns ) {
 
-        int[][] lData = new int[CommonUtils.UI_MAX_ROW][CommonUtils.UI_MAX_COLUMN];
+        int[][] lData = new int[aRows][aColumns];
 
         for (int i = 0; i < aList.size(); i++) {
 
-            int lRow = i / CommonUtils.UI_MAX_COLUMN;
-            int lColumn = i % CommonUtils.UI_MAX_COLUMN;
+            int lRow = i / aRows;
+            int lColumn = i % aColumns;
 
             String lCost = aList.get(i);
             if (TextUtils.isEmpty(lCost)) {

@@ -72,6 +72,10 @@ public class MainActivity extends AppCompatActivity {
 
     private int[][] mInput = null;
 
+    private int mNoOfRows = 0;
+
+    private int mNoOfColumns = 0;
+
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
         super.onCreate(savedInstanceState);
@@ -92,7 +96,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick( View aView ) {
 
                 Message lMsg = mShortestPathHandler.obtainMessage();
-                lMsg.obj = CommonUtils.convertListToIntArray(mAdapter.getData());
+                lMsg.obj = CommonUtils
+                        .convertListToIntArray(mAdapter.getData(), mNoOfRows, mNoOfColumns);
                 mShortestPathHandler.sendMessage(lMsg);
             }
         });
@@ -131,6 +136,8 @@ public class MainActivity extends AppCompatActivity {
         if (null != lInput) {
             mInput = lInput;
         }
+        mNoOfRows = mInput.length;
+        mNoOfColumns = mInput[0].length;
         prepareUI(mInput);
 
     }
