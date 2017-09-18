@@ -156,9 +156,12 @@ public class InputCollectorActivity extends AppCompatActivity {
 
                     String[] lValues = mInputMap.get(aRowIdx).split(",");
 
+                    if (aRowIdx >= mInput.length) {
+                        continue;
+                    }
                     for (int i = 0; i < lValues.length; i++) {
 
-                        if (i >= mInput[i].length) {
+                        if (i >= mInput[aRowIdx].length) {
                             continue;
                         }
                         String lStr = lValues[i];
