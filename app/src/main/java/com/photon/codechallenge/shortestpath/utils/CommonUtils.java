@@ -53,7 +53,7 @@ public class CommonUtils {
     public interface UIProgressListener {
         /**
          * Intimate the path finding progress.
-         * 
+         *
          * @param aResultIndex Current matrix state
          * @param aRowCount No of rows in the input matrix
          * @param aColumnCount No of columns in the input matrix
@@ -63,7 +63,7 @@ public class CommonUtils {
 
     /**
      * Method to validate the supplied matrix against the pre & boundary conditions
-     * 
+     *
      * @param aInput 2D Matrix
      * @return True If the matrix satisfied all the pre & boundary conditions. False
      *         other wise.
@@ -105,7 +105,7 @@ public class CommonUtils {
 
     /**
      * Method to find the total cost of the 2D-Matrix
-     * 
+     *
      * @param aInputMatrix
      * @return
      */
@@ -122,7 +122,7 @@ public class CommonUtils {
 
     /**
      * Method to find the lowest cost path from the supplied 2D matrix.
-     * 
+     *
      * @param aInput 2dMatrix
      * @return Lowest cost
      */
@@ -180,10 +180,12 @@ public class CommonUtils {
         return sMinCost;
     }
 
+    private final static boolean isDebug = false;
+
     /**
      * Method to iterate through the supplied position of the input matrix based on
      * the preconditions.
-     * 
+     *
      * @param aInput Input 2D Matrix
      * @param aRow Row - Index
      * @param aCol Column - Index
@@ -206,11 +208,17 @@ public class CommonUtils {
         if (null == sRowIndex) {
             sRowIndex = new LinkedHashMap<>(aInput[0].length);
         }
-        sRowIndex.put(aCol, (aRow + 1) + "--" + (aCol + 1));
 
         int lCurrentValue = aInput[aRow][aCol];
         int lCurrentCost = aCost + lCurrentValue;
-        // System.out.println("[ R, C, Cost][" + aRow + "," + aCol + "," + aCost + "]");
+
+        if (isDebug) {
+            System.out.println(
+                    "[ R, C, Cost][" + aRow + "," + aCol + "," + aCost + " -- "
+                            + sRowIndex.values().toString() + "]");
+        }
+
+        sRowIndex.put(aCol, (aRow + 1) + "--" + (aCol + 1));
 
         // If the cost greater than threshold
         if (lCurrentCost > MAX_COST) {
@@ -219,7 +227,17 @@ public class CommonUtils {
                 if (sIMinCost == Integer.MAX_VALUE || lCurrentCost - lCurrentValue > sIMinCost) {
                     sIMinCost = lCurrentCost - lCurrentValue;
                 }
-                sRowIndex.remove(aCol);
+            }
+            sRowIndex.remove(aCol);
+
+            // How depth is the path.?
+            int lCurCost = findCostOfThePathMap(aInput, sRowIndex);
+            int lPreCost = findCostOfThePathMap(aInput, sResultRowIndex);
+            if (isDebug) {
+                System.out.println("[C,P][" + lCurCost + "," + lPreCost + "]");
+            }
+            if (lCurCost > lPreCost) {
+                sResultRowIndex = new LinkedHashMap<>(sRowIndex);
             }
             return;
         }
@@ -267,6 +285,29 @@ public class CommonUtils {
     }
 
     /**
+     * Method to find the cost of the path supplied as map.
+     * 
+     * @param aInput 2D-Input matrix
+     * @param sRowIndex Selected path index's
+     * @return Cost
+     */
+    private static int findCostOfThePathMap( int[][] aInput, Map<Integer, String> sRowIndex ) {
+
+        int lRes = 0;
+        if (null == sRowIndex || null == sRowIndex.values() || sRowIndex.values().size() == 0) {
+            return lRes;
+        }
+        for (String aStr : sRowIndex.values()) {
+
+            String[] lArray = aStr.split("--");
+            int lRow = Integer.parseInt(lArray[0]);
+            int lCol = Integer.parseInt(lArray[1]);
+            lRes += aInput[lRow - 1][lCol - 1];
+        }
+        return lRes;
+    }
+
+    /**
      * Method to reset the algo State's. Used for testing.
      */
     private static void reset() {
@@ -280,7 +321,7 @@ public class CommonUtils {
     /**
      * Method to check the supplied ROW & COLUMN indexes are pointing the last
      * column of the matrix
-     * 
+     *
      * @param aInput
      * @param aRow
      * @param aCol
@@ -292,7 +333,7 @@ public class CommonUtils {
 
     /**
      * Method to validate whether the supplied ROW & COLUMN indexes are valid
-     * 
+     *
      * @param aInput
      * @param aRow
      * @param aCol
@@ -304,7 +345,7 @@ public class CommonUtils {
 
     /**
      * Indicate the path made it all the way through the grid.
-     * 
+     *
      * @return True If it made through the grid.
      */
     public static final String getStatus() {
@@ -312,9 +353,18 @@ public class CommonUtils {
     }
 
     /**
+     * Method to return the path-indexes in a map
+     * 
+     * @return
+     */
+    public static Map<Integer, String> getResultIndex() {
+        return sResultRowIndex;
+    }
+
+    /**
      * Return the shortest path represented as a sequence of 'n' delimited integers,
      * each representing the rows traversed in turn.
-     * 
+     *
      * @return Path string.
      */
     public static final String getPath() {
@@ -367,7 +417,7 @@ public class CommonUtils {
 
     /**
      * Method to convert 2D array to List<Integer>
-     * 
+     *
      * @param aData
      * @return
      */
@@ -383,7 +433,7 @@ public class CommonUtils {
 
     /**
      * Method to convert 2D array to List<Integer>
-     * 
+     *
      * @param aList
      * @param aRows
      * @param aColumns
@@ -393,16 +443,20 @@ public class CommonUtils {
 
         int[][] lData = new int[aRows][aColumns];
 
-        for (int i = 0; i < aList.size(); i++) {
+        int lListIdx = 0;
+        for (int lRow = 0; lRow < aRows; lRow++) {
+            for (int lColumn = 0; lColumn < aColumns; lColumn++) {
 
-            int lRow = i / aRows;
-            int lColumn = i % aColumns;
-
-            String lCost = aList.get(i);
-            if (TextUtils.isEmpty(lCost)) {
-                lData[lRow][lColumn] = 0;
-            } else {
-                lData[lRow][lColumn] = Integer.parseInt(aList.get(i));
+                if (lListIdx >= aList.size()) {
+                    continue;
+                }
+                String lCost = aList.get(lListIdx);
+                if (TextUtils.isEmpty(lCost)) {
+                    lData[lRow][lColumn] = 0;
+                } else {
+                    lData[lRow][lColumn] = Integer.parseInt(lCost);
+                }
+                lListIdx = lListIdx + 1;
             }
         }
         return lData;

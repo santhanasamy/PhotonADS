@@ -96,8 +96,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick( View aView ) {
 
                 Message lMsg = mShortestPathHandler.obtainMessage();
-                lMsg.obj = CommonUtils
+                mInput = CommonUtils
                         .convertListToIntArray(mAdapter.getData(), mNoOfRows, mNoOfColumns);
+                lMsg.obj = mInput;
                 mShortestPathHandler.sendMessage(lMsg);
             }
         });
@@ -121,7 +122,8 @@ public class MainActivity extends AppCompatActivity {
             public void handleMessage( Message msg ) {
 
                 if (msg.what == UPDATE_RESULT) {
-                    updateUI((Integer) msg.obj);
+                    updateUI(msg.arg1);
+                    updateProgress((Map<Integer, String>) msg.obj, mNoOfRows, mNoOfColumns);
                 } else if (msg.what == UPDATE_PROGRESS) {
                     Map<Integer, String> aResultIndex = (Map<Integer, String>) msg.obj;
                     updateProgress(aResultIndex, msg.arg1, msg.arg2);
@@ -186,7 +188,8 @@ public class MainActivity extends AppCompatActivity {
                         });
 
                 Message lMsg = mUIHandler.obtainMessage(UPDATE_RESULT);
-                lMsg.obj = lResult;
+                lMsg.arg1 = lResult;
+                lMsg.obj = CommonUtils.getResultIndex();
                 mUIHandler.sendMessage(lMsg);
             }
         };
@@ -221,7 +224,10 @@ public class MainActivity extends AppCompatActivity {
     private void updateProgress( Map<Integer, String> aProgress, int aRowCount, int aColumnCount ) {
 
         int[][] result = new int[aRowCount][aColumnCount];
-
+        if (null == aProgress) {
+            mAdapter.updateProgress(result);
+            return;
+        }
         for (String aData : aProgress.values()) {
 
             String[] lData = aData.split("--");

@@ -72,7 +72,16 @@ public class InputCollectorActivity extends AppCompatActivity {
                     lNoOfColumns = Integer.parseInt(lStrColumnCount);
                 }
                 mInput = new int[lNoOfRows][lNoOfColumns];
-                mInputMap = new HashMap<Integer, String>(lNoOfRows);
+
+                if(null == mInputMap) {
+                    mInputMap = new HashMap<Integer, String>(lNoOfRows);
+                } else {
+                    HashMap<Integer, String> lInputMap = new HashMap<Integer, String>(lNoOfRows);
+                    for (Integer lInt: mInputMap.keySet()) {
+                        lInputMap.put(lInt, mInputMap.get(lInt));
+                    }
+                    mInputMap = lInputMap;
+                }
                 insertRows(lNoOfRows);
             }
         });
