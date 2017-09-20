@@ -13,7 +13,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.photon.codechallenge.shortestpath.utils.CommonUtils;
 
@@ -151,13 +150,13 @@ public class MainActivity extends AppCompatActivity {
     private void prepareUI( int[][] aData ) {
 
         if (aData == null || aData.length == 0 || aData.length > CommonUtils.UI_MAX_ROW) {
-            Toast.makeText(this, R.string.invalid_input, Toast.LENGTH_SHORT).show();
+            CommonUtils.showInvalidWarning(this);
             finish();
             return;
         }
 
         if (aData.length > 0 && aData[0].length > CommonUtils.UI_MAX_COLUMN) {
-            Toast.makeText(this, R.string.invalid_input, Toast.LENGTH_SHORT).show();
+            CommonUtils.showInvalidWarning(this);
             finish();
             return;
         }

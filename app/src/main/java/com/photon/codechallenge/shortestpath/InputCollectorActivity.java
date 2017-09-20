@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.photon.codechallenge.shortestpath.utils.CommonUtils;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 /**
@@ -60,7 +61,7 @@ public class InputCollectorActivity extends AppCompatActivity {
 
         mCalculateButton = (Button) findViewById(R.id.calculate_btn);
         mClearButton = (Button) findViewById(R.id.clear_btn);
-        mGenerateBtn = (Button) findViewById(R.id.set_btn);
+        mGenerateBtn = (Button) findViewById(R.id.generate_row_btn);
 
         mNoOfRowsView.addTextChangedListener(new TextWatcher() {
             @Override
@@ -164,6 +165,10 @@ public class InputCollectorActivity extends AppCompatActivity {
                     mNoOfColumns = Integer.parseInt(lStrColumnCount);
                 }
 
+                if (0 == mNoOfRows || 0 == mNoOfColumns) {
+                    CommonUtils.showInvalidWarning(InputCollectorActivity.this);
+                    return;
+                }
                 mInput = new int[mNoOfRows][mNoOfColumns];
 
                 if (null == mInputMap) {
@@ -185,6 +190,10 @@ public class InputCollectorActivity extends AppCompatActivity {
             @Override
             public void onClick( View aView ) {
 
+                if (null == mInputMap || 0 == mInputMap.size()) {
+                    CommonUtils.showInvalidWarning(InputCollectorActivity.this);
+                    return;
+                }
                 for (Integer aRowIdx : mInputMap.keySet()) {
 
                     String[] lValues = mInputMap.get(aRowIdx).split(",");
@@ -199,13 +208,16 @@ public class InputCollectorActivity extends AppCompatActivity {
                         }
                         String lStr = lValues[i];
 
-                        if (!TextUtils.isEmpty(lStr) && CommonUtils.isNumeric(lStr)) {
+                        if (!TextUtils.isEmpty(lStr) && CommonUtils.isValidInput(lStr)) {
                             mInput[aRowIdx][i] = Integer.parseInt(lStr);
                         } else {
                             mInput[aRowIdx][i] = 0;
                         }
                     }
                 }
+
+                //System.out.println(Arrays.deepToString(mInput));
+
                 Intent lIntent = new Intent(InputCollectorActivity.this, MainActivity.class);
                 Bundle lBundle = new Bundle();
                 lBundle.putSerializable(InputCollectorActivity.KEY_INPUT_EXTRA, mInput);
@@ -244,6 +256,7 @@ public class InputCollectorActivity extends AppCompatActivity {
             for (int i = lCount; i < aNoOfRows; i++) {
 
                 final EditText lEditText = new EditText(this);
+                lEditText.setId(i);
                 lEditText.setTag(i);
                 lEditText.setLayoutParams(lLayoutParam);
                 lEditText.setInputType(

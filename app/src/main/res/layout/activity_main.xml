@@ -60,6 +60,7 @@
             android:weightSum="2">
 
             <TextView
+                android:id="@+id/result_status_lable_txt_view"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"

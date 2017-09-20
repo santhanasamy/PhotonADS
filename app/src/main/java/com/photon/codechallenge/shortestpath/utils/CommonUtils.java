@@ -1,7 +1,11 @@
 
 package com.photon.codechallenge.shortestpath.utils;
 
+import android.content.Context;
 import android.text.TextUtils;
+import android.widget.Toast;
+
+import com.photon.codechallenge.shortestpath.R;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * <br/>
+ * Class to keep common utils and core algo to find the low cost path. <br/>
  * 1. The first line is either “Yes” or “No”, to indicate the path made it all
  * the way through the grid <br/>
  * 2. The second line is the total cost. <br/>
@@ -20,7 +24,7 @@ import java.util.Map;
  */
 public class CommonUtils {
 
-    private final static boolean IS_DEBUG_ENABLED = true;
+    private final static boolean IS_DEBUG_ENABLED = false;
 
     public static final int CHOSEN_PATH_INDICATOR = 999;
 
@@ -220,13 +224,13 @@ public class CommonUtils {
         int lCurrentValue = aInput[aRow][aCol];
         int lCurrentCost = aCost + lCurrentValue;
 
+        sRowIndex.put(aCol, (aRow + 1) + "--" + (aCol + 1));
+
         if (IS_DEBUG_ENABLED) {
             System.out.println(
                     "[ R, C, Cost][" + aRow + "," + aCol + "," + aCost + "]   "
                             + sRowIndex.values().toString() + "]");
         }
-
-        sRowIndex.put(aCol, (aRow + 1) + "--" + (aCol + 1));
 
         // If the cost greater than threshold
         if (lCurrentCost > MAX_COST) {
@@ -236,7 +240,10 @@ public class CommonUtils {
                     sIMinCost = lCurrentCost - lCurrentValue;
                 }
             }
-            sRowIndex.remove(aCol);
+            String lRemovedItem = sRowIndex.remove(aCol);
+            if (IS_DEBUG_ENABLED) {
+                System.out.println("[Removing][" + lRemovedItem + "]");
+            }
 
             // How depth is the path.?
             int lCurCost = getCostOfThePathMap(aInput, sRowIndex);
@@ -252,7 +259,8 @@ public class CommonUtils {
 
             if ((lPreCost == 0 && lPreDepth == 0)
                     || (lPreCost == 0 && lCurCost > 0 && lCurDepth > lPreDepth)
-                    || (lCurCost < lPreCost && lCurDepth > lPreDepth)) {
+                    || (lCurCost < lPreCost && lCurDepth >= lPreDepth)
+                    || (lCurCost < MAX_COST && lCurDepth > lPreDepth)) {
                 sResultRowIndex = new LinkedHashMap<>(sRowIndex);
             }
             if (IS_DEBUG_ENABLED) {
@@ -305,7 +313,7 @@ public class CommonUtils {
 
     /**
      * Method to find the cost of the path supplied as map.
-     * 
+     *
      * @param aInput 2D-Input matrix
      * @param sRowIndex Selected path index's
      * @return Cost
@@ -398,7 +406,7 @@ public class CommonUtils {
 
     /**
      * Method to return the path-indexes in a map
-     * 
+     *
      * @return
      */
     public static Map<Integer, String> getResultIndex() {
@@ -446,8 +454,8 @@ public class CommonUtils {
     /**
      * Method to convert 2D array to List<String>
      *
-     * @param aData
-     * @return List
+     * @param aData 2D Input Matrix
+     * @return List Flattened 2D matrix as a List of String
      */
     public static List<String> convertArrayToList( int[][] aData ) {
         List<String> lList = new ArrayList<>();
@@ -462,8 +470,8 @@ public class CommonUtils {
     /**
      * Method to convert 2D array to List<Integer>
      *
-     * @param aData
-     * @return
+     * @param aData 2D Input Matrix
+     * @return Flattened 2D matrix as a List of Integer
      */
     public static List<Integer> convertArrayToIntList( int[][] aData ) {
         List<Integer> lList = new ArrayList<>();
@@ -478,9 +486,9 @@ public class CommonUtils {
     /**
      * Method to convert 2D array to List<Integer>
      *
-     * @param aList
-     * @param aRows
-     * @param aColumns
+     * @param aList List of data
+     * @param aRows No of rows
+     * @param aColumns No of columns
      * @return
      */
     public static int[][] convertListToIntArray( List<String> aList, int aRows, int aColumns ) {
@@ -506,10 +514,21 @@ public class CommonUtils {
         return lData;
     }
 
-    public static boolean isNumeric( String str ) {
+    /**
+     * Method to check whether the supplied input is valid.
+     * 
+     * @param str Input string
+     * @return True If the input is in valid format
+     */
+    public static boolean isValidInput( String str ) {
         if (str == null) {
             return false;
         }
         return str.matches("-?\\d+");
+    }
+
+    public static final void showInvalidWarning( Context aContext ) {
+        Toast.makeText(aContext, R.string.invalid_input, Toast.LENGTH_SHORT).show();
+
     }
 }
