@@ -18,7 +18,6 @@ import android.widget.Toast;
 
 import com.photon.codechallenge.shortestpath.utils.CommonUtils;
 
-import java.util.Arrays;
 import java.util.HashMap;
 
 /**
