@@ -11,4 +11,9 @@
     <string name="columns">No Of Columns</string>
 
     <string name="str_generate">Generate</string>
+
+    <string name="invalid_input">Invalid Input.</string>
+
+    <string name="max_allowed_rows">Invalid Input. Maximum allowed rows in UI : %1$d.</string>
+    <string name="max_allowed_Columns">Invalid Input. Maximum allowed columns in UI : %1$d.</string>
 </resources>

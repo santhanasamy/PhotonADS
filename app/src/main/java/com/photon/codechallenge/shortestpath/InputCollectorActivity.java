@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.DigitsKeyListener;
@@ -13,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.photon.codechallenge.shortestpath.utils.CommonUtils;
 
@@ -26,9 +28,9 @@ public class InputCollectorActivity extends AppCompatActivity {
 
     public static final String KEY_INPUT_EXTRA = "Input Data";
 
-    private EditText mNoOfRowsEditTextView = null;
+    private EditText mNoOfRowsView = null;
 
-    private EditText mNoOfColumnsEditTextView = null;
+    private EditText mNoOfColumnsView = null;
 
     private Button mCalculateButton = null;
 
@@ -38,54 +40,29 @@ public class InputCollectorActivity extends AppCompatActivity {
 
     private LinearLayout mInputContainer = null;
 
+    private HashMap<Integer, String> mInputMap = null;
+
     private int mInput[][] = null;
 
-    private HashMap<Integer, String> mInputMap;
+    private int mNoOfRows = 0;
+
+    private int mNoOfColumns = 0;
 
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_input_collector);
 
-        mNoOfRowsEditTextView = (EditText) findViewById(R.id.rows_edit_txt_view);
-        mNoOfColumnsEditTextView = (EditText) findViewById(R.id.columns_edit_txt_view);
+        mNoOfRowsView = (EditText) findViewById(R.id.rows_edit_txt_view);
+        mNoOfColumnsView = (EditText) findViewById(R.id.columns_edit_txt_view);
 
+        mInputContainer = (LinearLayout) findViewById(R.id.input_container);
+
+        mCalculateButton = (Button) findViewById(R.id.calculate_btn);
+        mClearButton = (Button) findViewById(R.id.clear_btn);
         mGenerateBtn = (Button) findViewById(R.id.set_btn);
 
-        mGenerateBtn.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick( View view ) {
-
-                String lStrRowCount = mNoOfRowsEditTextView.getText().toString();
-                String lStrColumnCount = mNoOfColumnsEditTextView.getText().toString();
-
-                int lNoOfRows = 0;
-                int lNoOfColumns = 0;
-
-                if (!TextUtils.isEmpty(lStrRowCount) && TextUtils.isDigitsOnly(lStrRowCount)) {
-                    lNoOfRows = Integer.parseInt(lStrRowCount);
-                }
-
-                if (!TextUtils.isEmpty(lStrColumnCount)
-                        && TextUtils.isDigitsOnly(lStrColumnCount)) {
-                    lNoOfColumns = Integer.parseInt(lStrColumnCount);
-                }
-                mInput = new int[lNoOfRows][lNoOfColumns];
-
-                if(null == mInputMap) {
-                    mInputMap = new HashMap<Integer, String>(lNoOfRows);
-                } else {
-                    HashMap<Integer, String> lInputMap = new HashMap<Integer, String>(lNoOfRows);
-                    for (Integer lInt: mInputMap.keySet()) {
-                        lInputMap.put(lInt, mInputMap.get(lInt));
-                    }
-                    mInputMap = lInputMap;
-                }
-                insertRows(lNoOfRows);
-            }
-        });
-        mNoOfRowsEditTextView.addTextChangedListener(new TextWatcher() {
+        mNoOfRowsView.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged( CharSequence charSequence, int i, int i1, int i2 ) {
 
@@ -105,17 +82,30 @@ public class InputCollectorActivity extends AppCompatActivity {
                     int lTempCount = Integer.parseInt(lRowCount);
 
                     if (lTempCount > CommonUtils.MAX_NO_OF_ROWS) {
+                        Toast
+                                .makeText(
+                                        InputCollectorActivity.this,
+                                        getResources().getString(
+                                                R.string.max_allowed_rows,
+                                                CommonUtils.UI_MAX_ROW),
+                                        Toast.LENGTH_SHORT)
+                                .show();
                         lTempCount = CommonUtils.MAX_NO_OF_ROWS;
                     }
 
-                    mNoOfRowsEditTextView.removeTextChangedListener(this);
-                    mNoOfRowsEditTextView.setText("" + lTempCount);
-                    mNoOfRowsEditTextView.addTextChangedListener(this);
+                    if (lTempCount != mNoOfColumns) {
+                        mCalculateButton.setEnabled(false);
+                    }
+                    mNoOfRowsView.removeTextChangedListener(this);
+                    mNoOfRowsView.setText("" + lTempCount);
+                    mNoOfRowsView.addTextChangedListener(this);
+                    mNoOfRowsView.setSelection(mNoOfRowsView.getText().length());
+
                 }
             }
         });
 
-        mNoOfColumnsEditTextView.addTextChangedListener(new TextWatcher() {
+        mNoOfColumnsView.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged( CharSequence charSequence, int i, int i1, int i2 ) {
 
@@ -134,19 +124,62 @@ public class InputCollectorActivity extends AppCompatActivity {
                 if (!TextUtils.isEmpty(lColumnCount)) {
                     int lTempCount = Integer.parseInt(lColumnCount);
 
-                    if (lTempCount > CommonUtils.MAX_NO_OF_COLUMNS) {
-                        lTempCount = CommonUtils.MAX_NO_OF_COLUMNS;
+                    if (lTempCount > CommonUtils.UI_MAX_COLUMN) {
+
+                        Toast
+                                .makeText(
+                                        InputCollectorActivity.this,
+                                        getResources().getString(
+                                                R.string.max_allowed_Columns,
+                                                CommonUtils.UI_MAX_COLUMN),
+                                        Toast.LENGTH_SHORT)
+                                .show();
+                        lTempCount = CommonUtils.UI_MAX_COLUMN;
                     }
-                    mNoOfColumnsEditTextView.removeTextChangedListener(this);
-                    mNoOfColumnsEditTextView.setText("" + lTempCount);
-                    mNoOfColumnsEditTextView.addTextChangedListener(this);
+
+                    if (lTempCount != mNoOfColumns) {
+                        mCalculateButton.setEnabled(false);
+                    }
+                    mNoOfColumnsView.removeTextChangedListener(this);
+                    mNoOfColumnsView.setText("" + lTempCount);
+                    mNoOfColumnsView.addTextChangedListener(this);
+                    mNoOfColumnsView.setSelection(mNoOfColumnsView.getText().length());
                 }
             }
         });
-        mInputContainer = (LinearLayout) findViewById(R.id.input_container);
+        mGenerateBtn.setOnClickListener(new View.OnClickListener() {
 
-        mCalculateButton = (Button) findViewById(R.id.calculate_btn);
-        mClearButton = (Button) findViewById(R.id.clear_btn);
+            @Override
+            public void onClick( View view ) {
+
+                String lStrRowCount = mNoOfRowsView.getText().toString();
+                String lStrColumnCount = mNoOfColumnsView.getText().toString();
+
+                if (!TextUtils.isEmpty(lStrRowCount) && TextUtils.isDigitsOnly(lStrRowCount)) {
+                    mNoOfRows = Integer.parseInt(lStrRowCount);
+                }
+
+                if (!TextUtils.isEmpty(lStrColumnCount)
+                        && TextUtils.isDigitsOnly(lStrColumnCount)) {
+                    mNoOfColumns = Integer.parseInt(lStrColumnCount);
+                }
+
+                mInput = new int[mNoOfRows][mNoOfColumns];
+
+                if (null == mInputMap) {
+                    mInputMap = new HashMap<>(mNoOfRows);
+                } else {
+                    HashMap<Integer, String> lInputMap = new HashMap<>(mNoOfRows);
+                    for (Integer lInt : mInputMap.keySet()) {
+                        lInputMap.put(lInt, mInputMap.get(lInt));
+                    }
+                    mInputMap = lInputMap;
+                }
+                insertRows(mNoOfRows);
+                mCalculateButton.setEnabled(true);
+            }
+        });
+
         mCalculateButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -166,7 +199,7 @@ public class InputCollectorActivity extends AppCompatActivity {
                         }
                         String lStr = lValues[i];
 
-                        if (!TextUtils.isEmpty(lStr) && TextUtils.isDigitsOnly(lStr)) {
+                        if (!TextUtils.isEmpty(lStr) && CommonUtils.isNumeric(lStr)) {
                             mInput[aRowIdx][i] = Integer.parseInt(lStr);
                         } else {
                             mInput[aRowIdx][i] = 0;
@@ -185,8 +218,8 @@ public class InputCollectorActivity extends AppCompatActivity {
 
             @Override
             public void onClick( View aView ) {
-                mNoOfRowsEditTextView.setText("");
-                mNoOfColumnsEditTextView.setText("");
+                mNoOfRowsView.setText("");
+                mNoOfColumnsView.setText("");
                 insertRows(0);
             }
         });
@@ -213,7 +246,9 @@ public class InputCollectorActivity extends AppCompatActivity {
                 final EditText lEditText = new EditText(this);
                 lEditText.setTag(i);
                 lEditText.setLayoutParams(lLayoutParam);
-                lEditText.setKeyListener(DigitsKeyListener.getInstance("0123456789,"));
+                lEditText.setInputType(
+                        InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_SIGNED);
+                lEditText.setKeyListener(DigitsKeyListener.getInstance("0123456789,-+"));
                 lEditText.addTextChangedListener(new TextWatcher() {
                     @Override
                     public void beforeTextChanged(

@@ -20,6 +20,8 @@ import java.util.Map;
  */
 public class CommonUtils {
 
+    private final static boolean IS_DEBUG_ENABLED = true;
+
     public static final int CHOSEN_PATH_INDICATOR = 999;
 
     public final static int UI_MAX_ROW = 10;
@@ -154,6 +156,7 @@ public class CommonUtils {
             // aListener.onProgressUpdate(sResultRowIndex, aInput.length, aInput[0].length);
         }
 
+        // 1. Print Path finding status.
         if (sMinCost > 0 && sMinCost != Integer.MAX_VALUE) {
             sStatus = true;
             System.out.println("Yes");
@@ -171,7 +174,14 @@ public class CommonUtils {
             }
             System.out.println("No");
         }
+
+        // 2. Print cost of the resultant path
+        if (!sStatus) {
+            sMinCost = getCostOfThePathMap(aInput, sResultRowIndex);
+        }
         System.out.println(sMinCost);
+
+        // 3. Print path string
         if (null != sResultRowIndex) {
             System.out.println(getPath());
         } else {
@@ -179,8 +189,6 @@ public class CommonUtils {
         }
         return sMinCost;
     }
-
-    private final static boolean isDebug = false;
 
     /**
      * Method to iterate through the supplied position of the input matrix based on
@@ -212,9 +220,9 @@ public class CommonUtils {
         int lCurrentValue = aInput[aRow][aCol];
         int lCurrentCost = aCost + lCurrentValue;
 
-        if (isDebug) {
+        if (IS_DEBUG_ENABLED) {
             System.out.println(
-                    "[ R, C, Cost][" + aRow + "," + aCol + "," + aCost + " -- "
+                    "[ R, C, Cost][" + aRow + "," + aCol + "," + aCost + "]   "
                             + sRowIndex.values().toString() + "]");
         }
 
@@ -231,13 +239,24 @@ public class CommonUtils {
             sRowIndex.remove(aCol);
 
             // How depth is the path.?
-            int lCurCost = findCostOfThePathMap(aInput, sRowIndex);
-            int lPreCost = findCostOfThePathMap(aInput, sResultRowIndex);
-            if (isDebug) {
-                System.out.println("[C,P][" + lCurCost + "," + lPreCost + "]");
+            int lCurCost = getCostOfThePathMap(aInput, sRowIndex);
+            int lPreCost = getCostOfThePathMap(aInput, sResultRowIndex);
+
+            int lCurDepth = getMaxDepthOfThePathMap(sRowIndex);
+            int lPreDepth = getMaxDepthOfThePathMap(sResultRowIndex);
+
+            if (IS_DEBUG_ENABLED) {
+                System.out.println("Cost [C,P][" + lCurCost + "," + lPreCost + "]");
+                System.out.println("Depth[C,P][" + lCurDepth + "," + lPreDepth + "]");
             }
-            if (lCurCost > lPreCost) {
+
+            if ((lPreCost == 0 && lPreDepth == 0)
+                    || (lPreCost == 0 && lCurCost > 0 && lCurDepth > lPreDepth)
+                    || (lCurCost < lPreCost && lCurDepth > lPreDepth)) {
                 sResultRowIndex = new LinkedHashMap<>(sRowIndex);
+            }
+            if (IS_DEBUG_ENABLED) {
+                System.out.println("[Result]" + sResultRowIndex.values().toString());
             }
             return;
         }
@@ -291,7 +310,7 @@ public class CommonUtils {
      * @param sRowIndex Selected path index's
      * @return Cost
      */
-    private static int findCostOfThePathMap( int[][] aInput, Map<Integer, String> sRowIndex ) {
+    private static int getCostOfThePathMap( int[][] aInput, Map<Integer, String> sRowIndex ) {
 
         int lRes = 0;
         if (null == sRowIndex || null == sRowIndex.values() || sRowIndex.values().size() == 0) {
@@ -303,6 +322,31 @@ public class CommonUtils {
             int lRow = Integer.parseInt(lArray[0]);
             int lCol = Integer.parseInt(lArray[1]);
             lRes += aInput[lRow - 1][lCol - 1];
+        }
+        return lRes;
+    }
+
+    /**
+     * Method to find the depth (column wise)of the path supplied as map.
+     *
+     * @param sRowIndex Selected path index's
+     * @return Max Depth of the path
+     */
+    private static int getMaxDepthOfThePathMap( Map<Integer, String> sRowIndex ) {
+
+        int lRes = 0;
+        if (null == sRowIndex || null == sRowIndex.values() || sRowIndex.values().size() == 0) {
+            return lRes;
+        }
+
+        for (String aStr : sRowIndex.values()) {
+
+            String[] lArray = aStr.split("--");
+            int lCol = Integer.parseInt(lArray[1]);
+
+            if (lRes < lCol) {
+                lRes = lCol;
+            }
         }
         return lRes;
     }
@@ -460,5 +504,12 @@ public class CommonUtils {
             }
         }
         return lData;
+    }
+
+    public static boolean isNumeric( String str ) {
+        if (str == null) {
+            return false;
+        }
+        return str.matches("-?\\d+");
     }
 }

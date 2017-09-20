@@ -1,6 +1,7 @@
 
 package com.photon.codechallenge.shortestpath;
 
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -19,6 +20,10 @@ import com.photon.codechallenge.shortestpath.utils.CommonUtils;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final int UPDATE_RESULT = 100;
+
+    private static final int UPDATE_PROGRESS = 101;
 
     private RecyclerView mRecyclerView = null;
 
@@ -41,10 +46,6 @@ public class MainActivity extends AppCompatActivity {
     private Handler mShortestPathHandler = null;
 
     private Handler mUIHandler = null;
-
-    private static final int UPDATE_RESULT = 100;
-
-    private static final int UPDATE_PROGRESS = 101;
 
     private static final int[][] DEFAULT_MATRIX = new int[][] {
             {
@@ -115,8 +116,6 @@ public class MainActivity extends AppCompatActivity {
 
         mResultContainer = (LinearLayout) findViewById(R.id.result_container);
 
-        // mResultContainer.setVisibility(View.INVISIBLE);
-
         mUIHandler = new Handler() {
             @Override
             public void handleMessage( Message msg ) {
@@ -152,17 +151,25 @@ public class MainActivity extends AppCompatActivity {
     private void prepareUI( int[][] aData ) {
 
         if (aData == null || aData.length == 0 || aData.length > CommonUtils.UI_MAX_ROW) {
-            Toast.makeText(this, "Invalid Input", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.invalid_input, Toast.LENGTH_SHORT).show();
+            finish();
+            return;
         }
 
-        if (aData.length > 0 && aData[0].length > CommonUtils.UI_MAX_ROW) {
-            Toast.makeText(this, "Invalid Input", Toast.LENGTH_SHORT).show();
+        if (aData.length > 0 && aData[0].length > CommonUtils.UI_MAX_COLUMN) {
+            Toast.makeText(this, R.string.invalid_input, Toast.LENGTH_SHORT).show();
+            finish();
+            return;
         }
-        mAdapter = new GridAdapter(CommonUtils.convertArrayToList(aData));
+        mAdapter = new GridAdapter(this, CommonUtils.convertArrayToList(aData));
 
         mRecyclerView.setAdapter(mAdapter);
         mLayoutManager = new GridLayoutManager(this, mInput[0].length);
         mRecyclerView.setLayoutManager(mLayoutManager);
+
+        int spacingInPixels = getResources().getDimensionPixelSize(R.dimen.grid_layout_margin);
+        mRecyclerView
+                .addItemDecoration(new SpacingDecoration(mInput[0].length, spacingInPixels, true));
 
         HandlerThread lThread = new HandlerThread("Shortest Path Finder");
         lThread.start();
@@ -236,7 +243,46 @@ public class MainActivity extends AppCompatActivity {
             result[lRow - 1][lColumn - 1] = CommonUtils.CHOSEN_PATH_INDICATOR;
             mAdapter.updateProgress(result);
         }
-
     }
 
+    class SpacingDecoration extends RecyclerView.ItemDecoration {
+
+        private int spanCount;
+
+        private int spacing;
+
+        private boolean includeEdge;
+
+        public SpacingDecoration(int spanCount, int spacing, boolean includeEdge) {
+            this.spanCount = spanCount;
+            this.spacing = spacing;
+            this.includeEdge = includeEdge;
+        }
+
+        @Override
+        public void getItemOffsets(
+                Rect outRect,
+                View view,
+                RecyclerView parent,
+                RecyclerView.State state ) {
+            int position = parent.getChildAdapterPosition(view);
+            int column = position % spanCount;
+
+            if (includeEdge) {
+                outRect.left = spacing - column * spacing / spanCount;
+                outRect.right = (column + 1) * spacing / spanCount;
+
+                if (position < spanCount) { // top edge
+                    outRect.top = spacing;
+                }
+                outRect.bottom = spacing; // item bottom
+            } else {
+                outRect.left = column * spacing / spanCount;
+                outRect.right = spacing - (column + 1) * spacing / spanCount;
+                if (position >= spanCount) {
+                    outRect.top = spacing; // item top
+                }
+            }
+        }
+    }
 }
