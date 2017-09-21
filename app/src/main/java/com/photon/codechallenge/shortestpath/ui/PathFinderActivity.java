@@ -31,6 +31,8 @@ public class PathFinderActivity extends AppCompatActivity {
 
     private static final int UPDATE_PROGRESS = 101;
 
+    private static final int UI_UPDATE_DELAY = 1000;
+
     private RecyclerView mRecyclerView = null;
 
     private TextView mResultStatusTxtView = null;
@@ -89,10 +91,7 @@ public class PathFinderActivity extends AppCompatActivity {
 
             @Override
             public void onClick( View aView ) {
-                mAdapter.clear();
-                mResultStatusTxtView.setText("");
-                mResultCostTxtView.setText("");
-                mResultPathTxtView.setText("");
+                clearUI();
             }
         });
 
@@ -171,14 +170,14 @@ public class PathFinderActivity extends AppCompatActivity {
                                 lMsg.obj = aResultIndex;
                                 lMsg.arg1 = aRowCount;
                                 lMsg.arg2 = aColumnCount;
-                                mUIHandler.sendMessageDelayed(lMsg, 1000);
+                                mUIHandler.sendMessageDelayed(lMsg, UI_UPDATE_DELAY);
 
                             }
                         });
 
                 Message lMsg = mUIHandler.obtainMessage(UPDATE_RESULT);
                 lMsg.arg1 = lResult;
-                lMsg.obj = LowCostPathFinder.getResultIndex();
+                lMsg.obj = LowCostPathFinder.getResultantPathIndex();
                 mUIHandler.sendMessage(lMsg);
             }
         };
@@ -198,7 +197,7 @@ public class PathFinderActivity extends AppCompatActivity {
     private void updateUI( int aResultCost ) {
         mResultStatusTxtView.setText("" + LowCostPathFinder.getStatus());
         mResultCostTxtView.setText("" + aResultCost);
-        mResultPathTxtView.setText("" + LowCostPathFinder.getPath());
+        mResultPathTxtView.setText("" + LowCostPathFinder.getResultantPath());
 
     }
 
@@ -270,4 +269,17 @@ public class PathFinderActivity extends AppCompatActivity {
             }
         }
     }
+
+    /**
+     * Method to clear & Reset the UI
+     */
+    private void clearUI() {
+        if (null != mAdapter) {
+            mAdapter.clear();
+        }
+        mResultStatusTxtView.setText("");
+        mResultCostTxtView.setText("");
+        mResultPathTxtView.setText("");
+    }
+
 }

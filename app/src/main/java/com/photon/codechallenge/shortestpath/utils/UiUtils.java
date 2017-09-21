@@ -34,6 +34,15 @@ public class UiUtils {
      */
     public static final void showInvalidWarning( Context aContext ) {
         Toast.makeText(aContext, R.string.invalid_input, Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * Method to show warning,
+     *
+     * @param aContext
+     */
+    public static final void showToast( Context aContext, String aWarningMsg ) {
+        Toast.makeText(aContext, aWarningMsg, Toast.LENGTH_SHORT).show();
 
     }
 

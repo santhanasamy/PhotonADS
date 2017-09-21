@@ -14,7 +14,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import com.photon.codechallenge.shortestpath.R;
 import com.photon.codechallenge.shortestpath.utils.CommonUtils;
@@ -83,14 +82,12 @@ public class InputCollectorActivity extends AppCompatActivity {
                     int lTempCount = Integer.parseInt(lRowCount);
 
                     if (lTempCount > CommonUtils.MAX_NO_OF_ROWS) {
-                        Toast
-                                .makeText(
-                                        InputCollectorActivity.this,
-                                        getResources().getString(
-                                                R.string.max_allowed_rows,
-                                                CommonUtils.UI_MAX_ROW),
-                                        Toast.LENGTH_SHORT)
-                                .show();
+
+                        UiUtils.showToast(
+                                InputCollectorActivity.this,
+                                getResources().getString(
+                                        R.string.max_allowed_rows,
+                                        CommonUtils.UI_MAX_ROW));
                         lTempCount = CommonUtils.MAX_NO_OF_ROWS;
                     }
 
@@ -127,14 +124,11 @@ public class InputCollectorActivity extends AppCompatActivity {
 
                     if (lTempCount > CommonUtils.UI_MAX_COLUMN) {
 
-                        Toast
-                                .makeText(
-                                        InputCollectorActivity.this,
-                                        getResources().getString(
-                                                R.string.max_allowed_Columns,
-                                                CommonUtils.UI_MAX_COLUMN),
-                                        Toast.LENGTH_SHORT)
-                                .show();
+                        UiUtils.showToast(
+                                InputCollectorActivity.this,
+                                getResources().getString(
+                                        R.string.max_allowed_Columns,
+                                        CommonUtils.UI_MAX_COLUMN));
                         lTempCount = CommonUtils.UI_MAX_COLUMN;
                     }
 

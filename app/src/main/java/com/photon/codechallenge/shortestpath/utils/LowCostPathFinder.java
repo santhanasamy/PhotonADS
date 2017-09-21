@@ -35,8 +35,8 @@ public class LowCostPathFinder {
     /**
      * Method to find the lowest cost path from the supplied 2D matrix.
      *
-     * @param aInput 2dMatrix
-     * @return Lowest cost
+     * @param aInput 2D - Input Matrix
+     * @return Path with the Lowest cost
      */
     public static int findShortestPath( int[][] aInput ) {
 
@@ -46,9 +46,9 @@ public class LowCostPathFinder {
     /**
      * Method to find the lowest cost path from the supplied 2D matrix.
      *
-     * @param aInput 2dMatrix
-     * @param aListener
-     * @return Lowest cost
+     * @param aInput 2D - Input Matrix
+     * @param aListener Listener to notify the progress.
+     * @return Path with the Lowest cost
      */
 
     public static int findShortestPath( int[][] aInput, UIProgressListener aListener ) {
@@ -93,7 +93,7 @@ public class LowCostPathFinder {
 
         // 3. Print path string
         if (null != sResultRowIndex) {
-            System.out.println(getPath());
+            System.out.println(getResultantPath());
         } else {
             System.out.println("[]");
         }
@@ -233,7 +233,7 @@ public class LowCostPathFinder {
      *
      * @return
      */
-    public static Map<Integer, String> getResultIndex() {
+    public static Map<Integer, String> getResultantPathIndex() {
         return sResultRowIndex;
     }
 
@@ -252,7 +252,7 @@ public class LowCostPathFinder {
      *
      * @return Path string.
      */
-    public static final String getPath() {
+    public static final String getResultantPath() {
 
         if (null != sResultRowIndex && sResultRowIndex.size() > 0) {
 

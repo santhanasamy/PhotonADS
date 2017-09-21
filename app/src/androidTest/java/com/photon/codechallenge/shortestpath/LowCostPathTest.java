@@ -244,6 +244,40 @@ public class LowCostPathTest {
 
     }
 
+    /**
+     * Test the behaviour of the clear button.
+     */
+    @Test
+    public void testClearButtonInPathFinderActivity() {
+
+        onView(withId(R.id.rows_edit_txt_view))
+                .perform(typeText("" + SampleInputs.TEST_CASE_1.length), closeSoftKeyboard());
+
+        onView(withId(R.id.columns_edit_txt_view))
+                .perform(typeText("" + SampleInputs.TEST_CASE_1[0].length), closeSoftKeyboard());
+
+        SystemClock.sleep(TEST_ACTION_DELAY);
+        onView(withId(R.id.generate_row_btn)).perform(click());
+        SystemClock.sleep(TEST_ACTION_DELAY);
+
+        enterUserInput(SampleInputs.TEST_CASE_1);
+
+        onView(withId(R.id.calculate_btn)).perform(click());
+
+        SystemClock.sleep(TEST_ACTION_DELAY);
+
+        onView(withId(R.id.clear_btn)).perform(click());
+        onView(withId(R.id.result_status_lable_txt_view)).check(matches(withText("Status")));
+        onView(withId(R.id.result_status_txt_view)).check(matches(withText("")));
+
+        onView(withId(R.id.result_cost_txt_view)).check(matches(withText("")));
+
+        onView(withId(R.id.result_path_view)).check(matches(withText("")));
+
+        SystemClock.sleep(TEST_EXE_DELAY);
+
+    }
+
     @Test
     public void test6X5NormalMatrix() {
         testLowCostPath(SampleInputs.TEST_CASE_1, "16", "Yes", "[1 2 3 4 4 5]");
