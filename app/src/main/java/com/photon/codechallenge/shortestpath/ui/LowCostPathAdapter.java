@@ -18,7 +18,8 @@ import com.photon.codechallenge.shortestpath.utils.UiUtils;
 import java.util.List;
 
 /**
- * Adapter class
+ * Adapter provide view for the 2D-Grid-RecyclerView and bind data with the
+ * view.
  */
 public class LowCostPathAdapter extends RecyclerView.Adapter<LowCostPathAdapter.GridViewHolder> {
 
@@ -79,16 +80,21 @@ public class LowCostPathAdapter extends RecyclerView.Adapter<LowCostPathAdapter.
             };
             holder.mGridItemTxtView.setText(name);
             holder.mGridItemTxtView.addTextChangedListener(lWatcher);
+            holder.mGridItemTxtView.setTag(lWatcher);
         } else {
             holder.mGridItemTxtView.removeTextChangedListener(lTempWatcher);
             holder.mGridItemTxtView.setText(name);
             holder.mGridItemTxtView.addTextChangedListener(lTempWatcher);
         }
-        // holder.mGridItemTxtView.setTag(lWatcher);
-        holder.mGridItemTxtView.setTag(R.id.grid_item, position);
 
+        holder.mGridItemTxtView.setTag(R.id.grid_item, position);
     }
 
+    /**
+     * Return no of items in the adapter.
+     * 
+     * @return
+     */
     @Override
     public int getItemCount() {
         return mCostList.size();

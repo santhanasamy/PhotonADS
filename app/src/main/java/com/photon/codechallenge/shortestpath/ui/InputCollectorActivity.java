@@ -22,7 +22,7 @@ import com.photon.codechallenge.shortestpath.utils.UiUtils;
 import java.util.HashMap;
 
 /**
- * Activity to collect input from the User.
+ * Activity to collect inputs from the User.
  */
 public class InputCollectorActivity extends AppCompatActivity {
 

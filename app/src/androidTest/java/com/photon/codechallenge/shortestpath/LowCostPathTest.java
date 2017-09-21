@@ -1,8 +1,10 @@
 
 package com.photon.codechallenge.shortestpath;
 
+import android.app.Activity;
+import android.app.Instrumentation;
 import android.os.SystemClock;
-import android.support.test.rule.ActivityTestRule;
+import android.support.test.espresso.intent.rule.IntentsTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.LargeTest;
 
@@ -10,6 +12,7 @@ import com.photon.codechallenge.shortestpath.ui.InputCollectorActivity;
 import com.photon.codechallenge.shortestpath.utils.CommonUtils;
 import com.photon.codechallenge.shortestpath.utils.SampleInputs;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,6 +24,10 @@ import static android.support.test.espresso.action.ViewActions.closeSoftKeyboard
 import static android.support.test.espresso.action.ViewActions.scrollTo;
 import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.intent.Intents.intending;
+import static android.support.test.espresso.intent.matcher.ComponentNameMatchers.hasShortClassName;
+import static android.support.test.espresso.intent.matcher.IntentMatchers.hasComponent;
+import static android.support.test.espresso.intent.matcher.IntentMatchers.isInternal;
 import static android.support.test.espresso.matcher.ViewMatchers.isEnabled;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
@@ -34,17 +41,26 @@ import static org.hamcrest.CoreMatchers.not;
 @LargeTest
 public class LowCostPathTest {
 
-    public static final int mLowerBound = 0;
+    public static final int LOWER_BOUND = 0;
 
-    public static final int mUpperBound = 50;
+    public static final int UPPER_BOUND = 50;
 
     private static final int TEST_ACTION_DELAY = 1000;
 
     private static final int TEST_EXE_DELAY = 2000;
 
+//    @Rule
+//    public ActivityTestRule<InputCollectorActivity> mActivityRule = new ActivityTestRule(
+//            InputCollectorActivity.class);
+
     @Rule
-    public ActivityTestRule<InputCollectorActivity> mActivityRule = new ActivityTestRule(
+    public IntentsTestRule<InputCollectorActivity> mActivityIntentRule = new IntentsTestRule<>(
             InputCollectorActivity.class);
+
+    @Before
+    public void stubAllExternalIntents() {
+        intending(not(isInternal())).respondWith(new Instrumentation.ActivityResult(Activity.RESULT_OK, null));
+    }
 
     @Test
     /**
@@ -196,8 +212,8 @@ public class LowCostPathTest {
         for (int i = 0; i < lNoOfRows; i++) {
             StringBuilder lBuilder = new StringBuilder();
             for (int j = 0; j < lNoOfColumns; j++) {
-                int lRandomNo = (int) (Math.random() * ((mUpperBound - mLowerBound) + 1)
-                        + mLowerBound);
+                int lRandomNo = (int) (Math.random() * ((UPPER_BOUND - LOWER_BOUND) + 1)
+                        + LOWER_BOUND);
                 if (j == lNoOfColumns - 1) {
                     lBuilder.append(lRandomNo);
                 } else {
@@ -278,6 +294,31 @@ public class LowCostPathTest {
 
     }
 
+    /**
+     * Test whether the intended activity{@link com.photon.codechallenge.shortestpath.ui.PathFinderActivity}
+     * is launched after clicking on the calculate button.
+     */
+    @Test
+    public void testPathFinderActivityLaunch() {
+
+        onView(withId(R.id.rows_edit_txt_view))
+                .perform(typeText("" + SampleInputs.TEST_CASE_1.length), closeSoftKeyboard());
+
+        onView(withId(R.id.columns_edit_txt_view))
+                .perform(typeText("" + SampleInputs.TEST_CASE_1[0].length), closeSoftKeyboard());
+
+        SystemClock.sleep(TEST_ACTION_DELAY);
+        onView(withId(R.id.generate_row_btn)).perform(click());
+        SystemClock.sleep(TEST_ACTION_DELAY);
+
+        enterUserInput(SampleInputs.TEST_CASE_1);
+
+        onView(withId(R.id.calculate_btn)).perform(click());
+
+        intending(hasComponent(hasShortClassName(".PathFinderActivity")));
+        SystemClock.sleep(TEST_EXE_DELAY);
+    }
+
     @Test
     public void test6X5NormalMatrix() {
         testLowCostPath(SampleInputs.TEST_CASE_1, "16", "Yes", "[1 2 3 4 4 5]");
@@ -344,7 +385,7 @@ public class LowCostPathTest {
         testLowCostPath(SampleInputs.TEST_CASE_15, "11", "Yes", "[1 2 1 5 4 5]");
     }
 
-    public void testLowCostPath( int[][] aInput, String aCost, String aStatus, String aPath ) {
+    public void testLowCostPath(int[][] aInput, String aCost, String aStatus, String aPath) {
 
         if (aInput == null) {
             return;
@@ -379,10 +420,10 @@ public class LowCostPathTest {
 
     /**
      * Method to enter comma separated user input into the generated Rows.
-     * 
+     *
      * @param aInput 2D Input Matrix
      */
-    private void enterUserInput( int[][] aInput ) {
+    private void enterUserInput(int[][] aInput) {
 
         int lRows = aInput.length;
         int lColumns = aInput[0].length;
