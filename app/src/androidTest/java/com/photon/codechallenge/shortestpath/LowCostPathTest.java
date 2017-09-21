@@ -6,6 +6,7 @@ import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.LargeTest;
 
+import com.photon.codechallenge.shortestpath.ui.InputCollectorActivity;
 import com.photon.codechallenge.shortestpath.utils.CommonUtils;
 import com.photon.codechallenge.shortestpath.utils.SampleInputs;
 
@@ -14,16 +15,19 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.clearText;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static android.support.test.espresso.action.ViewActions.scrollTo;
 import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.isEnabled;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.CoreMatchers.not;
 
 /**
- * Tests to check the InputCollector Activity.
+ * Tests to check the InputCollector Activity & PathFinderActivity.
  */
 
 @RunWith(AndroidJUnit4.class)
@@ -34,6 +38,8 @@ public class LowCostPathTest {
 
     public static final int mUpperBound = 50;
 
+    private static final int TEST_ACTION_DELAY = 1000;
+
     private static final int TEST_EXE_DELAY = 2000;
 
     @Rule
@@ -41,42 +47,201 @@ public class LowCostPathTest {
             InputCollectorActivity.class);
 
     @Test
-    public void testCustomUserInput() {
+    /**
+     * Test user entered row values are entered properly
+     */
+    public void testRowInput() {
 
-        int mRows = (int) (Math.random()
-                * ((CommonUtils.UI_MAX_ROW - CommonUtils.MIN_NO_OF_ROWS) + 1)
-                + CommonUtils.MIN_NO_OF_ROWS);
-        int mColumns = (int) (Math.random()
-                * ((CommonUtils.UI_MAX_COLUMN - CommonUtils.MIN_NO_OF_COLUMNS) + 1)
-                + CommonUtils.MIN_NO_OF_COLUMNS);
+        String lRows = "" + CommonUtils.UI_MAX_ROW;
+        onView(withId(R.id.rows_edit_txt_view)).perform(typeText(lRows), closeSoftKeyboard());
+        onView(withId(R.id.rows_edit_txt_view)).check(matches(withText(lRows)));
+    }
 
-        onView(withId(R.id.rows_edit_txt_view)).perform(typeText("" + mRows), closeSoftKeyboard());
+    @Test
+    /**
+     * Test whether the user entered row value is reset to
+     * {@link CommonUtils.UI_MAX_ROW}, If the value is greater than the allowed
+     * maximum no of rows {@link CommonUtils.UI_MAX_ROW}
+     */
+    public void testResettingMaxAllowedRowInput() {
+
+        String lAllowedNoOfRows = "" + CommonUtils.UI_MAX_ROW;
+        String lEnteredRows = "" + (CommonUtils.UI_MAX_ROW + 1);
+
+        onView(withId(R.id.rows_edit_txt_view))
+                .perform(typeText(lEnteredRows), closeSoftKeyboard());
+        onView(withId(R.id.rows_edit_txt_view)).check(matches(withText(lAllowedNoOfRows)));
+    }
+
+    /**
+     * Test user entered column values are entered properly
+     */
+    @Test
+    public void testColumnInput() {
+        String lColumns = "" + CommonUtils.UI_MAX_COLUMN;
+        onView(withId(R.id.columns_edit_txt_view)).perform(typeText(lColumns), closeSoftKeyboard());
+        onView(withId(R.id.columns_edit_txt_view)).check(matches(withText(lColumns)));
+    }
+
+    @Test
+    /**
+     * Test whether the user entered column value is reset to
+     * {@link CommonUtils.UI_MAX_COLUMN}, If the value is greater than the allowed
+     * maximum no of columns {@link CommonUtils.UI_MAX_COLUMN}
+     */
+    public void testResettingMaxAllowedColumnInput() {
+
+        String lAllowedNoOfColumn = "" + CommonUtils.UI_MAX_COLUMN;
+        String lEnteredColumn = "" + (CommonUtils.UI_MAX_COLUMN + 1);
 
         onView(withId(R.id.columns_edit_txt_view))
-                .perform(typeText("" + mColumns), closeSoftKeyboard());
+                .perform(typeText(lEnteredColumn), closeSoftKeyboard());
+        onView(withId(R.id.columns_edit_txt_view)).check(matches(withText(lAllowedNoOfColumn)));
+    }
+
+    @Test
+    /**
+     * Test the behaviour & state of calculate button in the user input screen. It
+     * should be in the disabled state If the user changed row or column values
+     * entered previously.
+     */
+    public void testCalculateButtonIsDisabled() {
+
+        String lRows = "" + CommonUtils.UI_MAX_ROW;
+        String lColumn = "" + CommonUtils.UI_MAX_COLUMN;
+
+        onView(withId(R.id.rows_edit_txt_view)).perform(typeText(lRows), closeSoftKeyboard());
+        onView(withId(R.id.columns_edit_txt_view)).perform(typeText(lColumn), closeSoftKeyboard());
+
+        onView(withId(R.id.generate_row_btn)).perform(click());
+        SystemClock.sleep(1000);
+        lRows = "" + (CommonUtils.UI_MAX_ROW - 1);
+        onView(withId(R.id.rows_edit_txt_view)).perform(clearText()).perform(click()).perform(
+                typeText(lRows),
+                closeSoftKeyboard());
+        SystemClock.sleep(1000);
+        onView(withId(R.id.calculate_btn)).check(matches(not(isEnabled())));
+        SystemClock.sleep(TEST_EXE_DELAY);
+    }
+
+    @Test
+    /**
+     * Test the behaviour & state of calculate button in the user input screen. It
+     * should be in the disabled state If the user changed row or columns values
+     * entered previously. And It should be enabled after tapping on the generate
+     * button.
+     */
+    public void testCalculateButtonIsEnabled() {
+
+        String lRows = "" + CommonUtils.UI_MAX_ROW;
+        String lColumn = "" + CommonUtils.UI_MAX_COLUMN;
+
+        onView(withId(R.id.rows_edit_txt_view)).perform(typeText(lRows), closeSoftKeyboard());
+        onView(withId(R.id.columns_edit_txt_view)).perform(typeText(lColumn), closeSoftKeyboard());
+
+        onView(withId(R.id.generate_row_btn)).perform(click());
+        SystemClock.sleep(TEST_ACTION_DELAY);
+        lRows = "" + (CommonUtils.UI_MAX_ROW - 1);
+        onView(withId(R.id.rows_edit_txt_view)).perform(clearText()).perform(click()).perform(
+                typeText(lRows),
+                closeSoftKeyboard());
+        SystemClock.sleep(TEST_ACTION_DELAY);
+        onView(withId(R.id.calculate_btn)).check(matches(not(isEnabled())));
 
         onView(withId(R.id.generate_row_btn)).perform(click());
 
-        for (int i = 0; i < mRows; i++) {
+        onView(withId(R.id.calculate_btn)).check(matches(isEnabled()));
+
+        SystemClock.sleep(TEST_EXE_DELAY);
+    }
+
+    @Test
+    /**
+     * Test no of rows generated through the generate button. No of rows generated
+     * should be equal to the user enter value of no of rows.
+     */
+    public void testNoOfRowsGenerated() {
+
+        int lNoOfRows = Utils.getRandomColumnCountWithInBound();
+        int lNoOfColumns = Utils.getRandomRowCountWithInBound();
+        String lRowStr = "" + lNoOfRows;
+
+        onView(withId(R.id.rows_edit_txt_view)).perform(typeText(lRowStr), closeSoftKeyboard());
+        onView(withId(R.id.columns_edit_txt_view))
+                .perform(typeText("" + lNoOfColumns), closeSoftKeyboard());
+
+        onView(withId(R.id.generate_row_btn)).perform(click());
+        SystemClock.sleep(TEST_ACTION_DELAY);
+
+        onView(withId(R.id.input_container))
+                .check(matches(Utils.withChildViewCount(lNoOfRows, withId(R.id.input_container))));
+
+        SystemClock.sleep(TEST_EXE_DELAY);
+    }
+
+    @Test
+    public void testWithRandomUserInputs() {
+
+        int lNoOfRows = Utils.getRandomColumnCountWithInBound();
+        int lNoOfColumns = Utils.getRandomRowCountWithInBound();
+
+        onView(withId(R.id.rows_edit_txt_view))
+                .perform(typeText("" + lNoOfRows), closeSoftKeyboard());
+
+        onView(withId(R.id.columns_edit_txt_view))
+                .perform(typeText("" + lNoOfColumns), closeSoftKeyboard());
+
+        onView(withId(R.id.generate_row_btn)).perform(click());
+
+        for (int i = 0; i < lNoOfRows; i++) {
             StringBuilder lBuilder = new StringBuilder();
-            for (int j = 0; j < mColumns; j++) {
+            for (int j = 0; j < lNoOfColumns; j++) {
                 int lRandomNo = (int) (Math.random() * ((mUpperBound - mLowerBound) + 1)
                         + mLowerBound);
-                if (j == mColumns - 1) {
+                if (j == lNoOfColumns - 1) {
                     lBuilder.append(lRandomNo);
                 } else {
                     lBuilder.append(lRandomNo).append(",");
                 }
             }
-            SystemClock.sleep(1000);
+            SystemClock.sleep(TEST_ACTION_DELAY);
             onView(withId(i))
                     .perform(scrollTo(), typeText(lBuilder.toString()), closeSoftKeyboard());
         }
-        SystemClock.sleep(2000);
+        SystemClock.sleep(TEST_ACTION_DELAY);
         onView(withId(R.id.calculate_btn)).perform(click());
 
         onView(withId(R.id.result_status_lable_txt_view)).check(matches(withText("Status")));
         SystemClock.sleep(TEST_EXE_DELAY);
+    }
+
+    /**
+     * Test the behaviour of the clear button.
+     */
+    @Test
+    public void testClearButton() {
+
+        int lNoOfRows = Utils.getRandomColumnCountWithInBound();
+        int lNoOfColumns = Utils.getRandomRowCountWithInBound();
+
+        onView(withId(R.id.rows_edit_txt_view))
+                .perform(typeText("" + lNoOfRows), closeSoftKeyboard());
+
+        onView(withId(R.id.columns_edit_txt_view))
+                .perform(typeText("" + lNoOfColumns), closeSoftKeyboard());
+
+        SystemClock.sleep(TEST_ACTION_DELAY);
+        onView(withId(R.id.generate_row_btn)).perform(click());
+        SystemClock.sleep(TEST_ACTION_DELAY);
+
+        onView(withId(R.id.clear_btn)).perform(click());
+
+        onView(withId(R.id.columns_edit_txt_view)).check(matches(withText("")));
+        onView(withId(R.id.columns_edit_txt_view)).check(matches(withText("")));
+
+        onView(withId(R.id.input_container))
+                .check(matches(Utils.withChildViewCount(0, withId(R.id.input_container))));
+
     }
 
     @Test
@@ -165,7 +330,7 @@ public class LowCostPathTest {
 
         enterUserInput(aInput);
 
-        SystemClock.sleep(2000);
+        SystemClock.sleep(TEST_ACTION_DELAY);
         onView(withId(R.id.calculate_btn)).perform(click());
 
         onView(withId(R.id.result_status_lable_txt_view)).check(matches(withText("Status")));
@@ -178,6 +343,11 @@ public class LowCostPathTest {
         SystemClock.sleep(TEST_EXE_DELAY);
     }
 
+    /**
+     * Method to enter comma separated user input into the generated Rows.
+     * 
+     * @param aInput 2D Input Matrix
+     */
     private void enterUserInput( int[][] aInput ) {
 
         int lRows = aInput.length;
@@ -192,7 +362,7 @@ public class LowCostPathTest {
                     lBuilder.append(aInput[i][j]).append(",");
                 }
             }
-            SystemClock.sleep(1000);
+            SystemClock.sleep(TEST_ACTION_DELAY);
             onView(withId(i))
                     .perform(scrollTo(), typeText(lBuilder.toString()), closeSoftKeyboard());
         }

@@ -1,5 +1,5 @@
 
-package com.photon.codechallenge.shortestpath;
+package com.photon.codechallenge.shortestpath.ui;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -11,32 +11,26 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.photon.codechallenge.shortestpath.R;
 import com.photon.codechallenge.shortestpath.utils.CommonUtils;
+import com.photon.codechallenge.shortestpath.utils.UiUtils;
 
 import java.util.List;
 
 /**
- * Adapter
+ * Adapter class
  */
-public class GridAdapter extends RecyclerView.Adapter<GridAdapter.GridViewHolder> {
+public class LowCostPathAdapter extends RecyclerView.Adapter<LowCostPathAdapter.GridViewHolder> {
 
     private List<String> mCostList = null;
 
-    private final float mTextSize1;
+    private Context mContext = null;
 
-    private final float mTextSize2;
+    private List<Integer> mSelectedResult = null;
 
-    private final float mTextSize3;
-
-    private final float mTextSize4;
-
-    public GridAdapter(Context aContext, List<String> aData) {
+    public LowCostPathAdapter(Context aContext, List<String> aData) {
         mCostList = aData;
-
-        mTextSize1 = aContext.getResources().getDimension(R.dimen.grid_item_text_size_1);
-        mTextSize2 = aContext.getResources().getDimension(R.dimen.grid_item_text_size_2);
-        mTextSize3 = aContext.getResources().getDimension(R.dimen.grid_item_text_size_3);
-        mTextSize4 = aContext.getResources().getDimension(R.dimen.grid_item_text_size_4);
+        mContext = aContext;
     }
 
     @Override
@@ -60,41 +54,37 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.GridViewHolder
         }
 
         int lValue = Integer.parseInt(name);
-        if (lValue > 999) {
-            holder.mGridItemTxtView.setTextSize(mTextSize3);
-        } else if (lValue > 99 && lValue < 1000) {
-            holder.mGridItemTxtView.setTextSize(mTextSize3);
-        } else if (lValue > 9 && lValue < 100) {
-            holder.mGridItemTxtView.setTextSize(mTextSize2);
-        } else {
-            holder.mGridItemTxtView.setTextSize(mTextSize1);
-        }
-        TextWatcher lWatcher = new TextWatcher() {
-
-            @Override
-            public void beforeTextChanged( CharSequence charSequence, int i, int i1, int i2 ) {
-
-            }
-
-            @Override
-            public void onTextChanged( CharSequence charSequence, int i, int i1, int i2 ) {
-
-            }
-
-            @Override
-            public void afterTextChanged( Editable editable ) {
-                mCostList.set(position, editable.toString());
-            }
-        };
+        holder.mGridItemTxtView.setTextSize(UiUtils.getTextSizeBasedOnTextLength(mContext, lValue));
 
         TextWatcher lTempWatcher = (TextWatcher) holder.mGridItemTxtView.getTag();
-        if (null != lTempWatcher) {
-            holder.mGridItemTxtView.removeTextChangedListener(lTempWatcher);
-        }
-        holder.mGridItemTxtView.setText(name);
 
-        holder.mGridItemTxtView.addTextChangedListener(lWatcher);
-        holder.mGridItemTxtView.setTag(lWatcher);
+        if (null == lTempWatcher) {
+
+            TextWatcher lWatcher = new TextWatcher() {
+
+                @Override
+                public void beforeTextChanged( CharSequence charSequence, int i, int i1, int i2 ) {
+
+                }
+
+                @Override
+                public void onTextChanged( CharSequence charSequence, int i, int i1, int i2 ) {
+
+                }
+
+                @Override
+                public void afterTextChanged( Editable editable ) {
+                    mCostList.set(position, editable.toString());
+                }
+            };
+            holder.mGridItemTxtView.setText(name);
+            holder.mGridItemTxtView.addTextChangedListener(lWatcher);
+        } else {
+            holder.mGridItemTxtView.removeTextChangedListener(lTempWatcher);
+            holder.mGridItemTxtView.setText(name);
+            holder.mGridItemTxtView.addTextChangedListener(lTempWatcher);
+        }
+        // holder.mGridItemTxtView.setTag(lWatcher);
         holder.mGridItemTxtView.setTag(R.id.grid_item, position);
 
     }
@@ -113,17 +103,26 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.GridViewHolder
         return mCostList;
     }
 
+    /**
+     * Method to add an item into the recycler view
+     * 
+     * @param position Position of the item
+     * @param item Item to be added
+     */
     public void add( int position, String item ) {
         mCostList.add(position, item);
         notifyItemInserted(position);
     }
 
+    /**
+     * Method to remove an item into the recycler view
+     * 
+     * @param position Position of the item
+     */
     public void remove( int position ) {
         mCostList.remove(position);
         notifyItemRemoved(position);
     }
-
-    private List<Integer> mSelectedResult;
 
     /**
      * Method to feed the cost finding progress updates from the background to
@@ -155,7 +154,7 @@ public class GridAdapter extends RecyclerView.Adapter<GridAdapter.GridViewHolder
     /**
      * View holder
      */
-    public class GridViewHolder extends RecyclerView.ViewHolder {
+    public static class GridViewHolder extends RecyclerView.ViewHolder {
 
         public TextView mGridItemTxtView;
 

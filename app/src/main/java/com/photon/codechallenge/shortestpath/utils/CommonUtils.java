@@ -1,30 +1,18 @@
 
 package com.photon.codechallenge.shortestpath.utils;
 
-import android.content.Context;
 import android.text.TextUtils;
-import android.widget.Toast;
-
-import com.photon.codechallenge.shortestpath.R;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Class to keep common utils and core algo to find the low cost path. <br/>
- * 1. The first line is either “Yes” or “No”, to indicate the path made it all
- * the way through the grid <br/>
- * 2. The second line is the total cost. <br/>
- * 3. The third line shows the path taken as a sequence of 'n' delimited
- * integers, each representing the rows traversed in turn. If there is more than
- * one path of least cost, only one path need be shown in the solution.
+ * Class to keep common utils
  */
 public class CommonUtils {
 
-    private final static boolean IS_DEBUG_ENABLED = false;
+    public final static boolean IS_DEBUG_ENABLED = false;
 
     public static final int CHOSEN_PATH_INDICATOR = 999;
 
@@ -41,31 +29,6 @@ public class CommonUtils {
     public final static int MAX_NO_OF_COLUMNS = 100;
 
     public final static int MAX_COST = 50;
-
-    private static int sMinCost = Integer.MAX_VALUE;
-
-    private static int sIMinCost = Integer.MAX_VALUE;
-
-    private static Map<Integer, String> sRowIndex = null;
-
-    private static Map<Integer, String> sResultRowIndex = null;
-
-    public static boolean sStatus = false;
-
-    /**
-     * Listener to notify the progress of finding the shortest/low cost path while
-     * moving across the grid.
-     */
-    public interface UIProgressListener {
-        /**
-         * Intimate the path finding progress.
-         *
-         * @param aResultIndex Current matrix state
-         * @param aRowCount No of rows in the input matrix
-         * @param aColumnCount No of columns in the input matrix
-         */
-        void onProgressUpdate( Map<Integer, String> aResultIndex, int aRowCount, int aColumnCount );
-    }
 
     /**
      * Method to validate the supplied matrix against the pre & boundary conditions
@@ -127,198 +90,13 @@ public class CommonUtils {
     }
 
     /**
-     * Method to find the lowest cost path from the supplied 2D matrix.
-     *
-     * @param aInput 2dMatrix
-     * @return Lowest cost
-     */
-    public static int findShortestPath( int[][] aInput ) {
-
-        return findShortestPath(aInput, null);
-    }
-
-    /**
-     * Method to find the lowest cost path from the supplied 2D matrix.
-     *
-     * @param aInput 2dMatrix
-     * @param aListener
-     * @return Lowest cost
-     */
-
-    public static int findShortestPath( int[][] aInput, UIProgressListener aListener ) {
-
-        reset();
-        for (int lRow = 0; lRow < aInput.length; lRow++) {
-
-            if (aInput[lRow][0] > MAX_COST) {
-                continue;
-            }
-            if (null != sRowIndex) {
-                sRowIndex.clear();
-            }
-            findShortestPathInternal(aInput, lRow, 0, 0, aListener);
-            // aListener.onProgressUpdate(sResultRowIndex, aInput.length, aInput[0].length);
-        }
-
-        // 1. Print Path finding status.
-        if (sMinCost > 0 && sMinCost != Integer.MAX_VALUE) {
-            sStatus = true;
-            System.out.println("Yes");
-        }
-        // For the negative inputs.
-        else if (sMinCost == 0 && sIMinCost == Integer.MAX_VALUE) {
-            sStatus = true;
-            System.out.println("Yes");
-        } else {
-            sStatus = false;
-            if (sIMinCost != Integer.MAX_VALUE && sMinCost == Integer.MAX_VALUE) {
-                sMinCost = sIMinCost;
-            } else if (sMinCost == Integer.MAX_VALUE) {
-                sMinCost = 0;
-            }
-            System.out.println("No");
-        }
-
-        // 2. Print cost of the resultant path
-        if (!sStatus) {
-            sMinCost = getCostOfThePathMap(aInput, sResultRowIndex);
-        }
-        System.out.println(sMinCost);
-
-        // 3. Print path string
-        if (null != sResultRowIndex) {
-            System.out.println(getPath());
-        } else {
-            System.out.println("[]");
-        }
-        return sMinCost;
-    }
-
-    /**
-     * Method to iterate through the supplied position of the input matrix based on
-     * the preconditions.
-     *
-     * @param aInput Input 2D Matrix
-     * @param aRow Row - Index
-     * @param aCol Column - Index
-     * @param aCost - Current cost
-     * @param aListener - Listener to notify the progress of finding the
-     *            shortest&low cost path.
-     */
-    private static void findShortestPathInternal(
-            int[][] aInput,
-            int aRow,
-            int aCol,
-            int aCost,
-            UIProgressListener aListener ) {
-
-        // If not valid index, just return cost
-        if (!isValidIndex(aInput, aRow, aCol)) {
-            return;
-        }
-
-        if (null == sRowIndex) {
-            sRowIndex = new LinkedHashMap<>(aInput[0].length);
-        }
-
-        int lCurrentValue = aInput[aRow][aCol];
-        int lCurrentCost = aCost + lCurrentValue;
-
-        sRowIndex.put(aCol, (aRow + 1) + "--" + (aCol + 1));
-
-        if (IS_DEBUG_ENABLED) {
-            System.out.println(
-                    "[ R, C, Cost][" + aRow + "," + aCol + "," + aCost + "]   "
-                            + sRowIndex.values().toString() + "]");
-        }
-
-        // If the cost greater than threshold
-        if (lCurrentCost > MAX_COST) {
-
-            if (lCurrentCost != lCurrentValue) {
-                if (sIMinCost == Integer.MAX_VALUE || lCurrentCost - lCurrentValue > sIMinCost) {
-                    sIMinCost = lCurrentCost - lCurrentValue;
-                }
-            }
-            String lRemovedItem = sRowIndex.remove(aCol);
-            if (IS_DEBUG_ENABLED) {
-                System.out.println("[Removing][" + lRemovedItem + "]");
-            }
-
-            // How depth is the path.?
-            int lCurCost = getCostOfThePathMap(aInput, sRowIndex);
-            int lPreCost = getCostOfThePathMap(aInput, sResultRowIndex);
-
-            int lCurDepth = getMaxDepthOfThePathMap(sRowIndex);
-            int lPreDepth = getMaxDepthOfThePathMap(sResultRowIndex);
-
-            if (IS_DEBUG_ENABLED) {
-                System.out.println("Cost [C,P][" + lCurCost + "," + lPreCost + "]");
-                System.out.println("Depth[C,P][" + lCurDepth + "," + lPreDepth + "]");
-            }
-
-            if ((lPreCost == 0 && lPreDepth == 0)
-                    || (lPreCost == 0 && lCurCost > 0 && lCurDepth > lPreDepth)
-                    || (lCurCost < lPreCost && lCurDepth >= lPreDepth)
-                    || (lCurCost < MAX_COST && lCurDepth > lPreDepth)) {
-                sResultRowIndex = new LinkedHashMap<>(sRowIndex);
-            }
-            if (IS_DEBUG_ENABLED) {
-                System.out.println("[Result]" + sResultRowIndex.values().toString());
-            }
-            return;
-        }
-
-        // If the cost exceeds the already found minimum cost value
-        if (lCurrentCost > sMinCost) {
-            return;
-        }
-
-        // Does it reached last column?
-        if (isLastColumn(aInput, aRow, aCol)) {
-
-            if (sMinCost > lCurrentCost) {
-                sMinCost = lCurrentCost;
-                if (null != sRowIndex) {
-                    sResultRowIndex = new LinkedHashMap<>(sRowIndex);
-                } else {
-                    sResultRowIndex = new LinkedHashMap<>();
-                }
-                if (null != aListener) {
-                    aListener.onProgressUpdate(sResultRowIndex, aInput.length, aInput[0].length);
-                }
-            }
-            return;
-        }
-
-        // 1. Previous row & next column
-        findShortestPathInternal(aInput, aRow - 1, aCol + 1, lCurrentCost, aListener);
-
-        // 2. Same row & next column
-        findShortestPathInternal(aInput, aRow, aCol + 1, lCurrentCost, aListener);
-
-        // 3.Next row & next column
-        findShortestPathInternal(aInput, aRow + 1, aCol + 1, lCurrentCost, aListener);
-
-        // 4.Adjacency from top to bottom
-        if (aRow == 0) {
-            findShortestPathInternal(aInput, aInput.length - 1, aCol + 1, lCurrentCost, aListener);
-        }
-
-        // 5.Adjacency from bottom to top
-        if (aRow == aInput.length - 1) {
-            findShortestPathInternal(aInput, 0, aCol + 1, lCurrentCost, aListener);
-        }
-    }
-
-    /**
      * Method to find the cost of the path supplied as map.
      *
      * @param aInput 2D-Input matrix
      * @param sRowIndex Selected path index's
      * @return Cost
      */
-    private static int getCostOfThePathMap( int[][] aInput, Map<Integer, String> sRowIndex ) {
+    public static int getCostOfThePathMap( int[][] aInput, Map<Integer, String> sRowIndex ) {
 
         int lRes = 0;
         if (null == sRowIndex || null == sRowIndex.values() || sRowIndex.values().size() == 0) {
@@ -335,12 +113,12 @@ public class CommonUtils {
     }
 
     /**
-     * Method to find the depth (column wise)of the path supplied as map.
+     * Method to find the maximum depth (column wise)of the path supplied as map.
      *
      * @param sRowIndex Selected path index's
      * @return Max Depth of the path
      */
-    private static int getMaxDepthOfThePathMap( Map<Integer, String> sRowIndex ) {
+    public static int getMaxDepthOfThePathMap( Map<Integer, String> sRowIndex ) {
 
         int lRes = 0;
         if (null == sRowIndex || null == sRowIndex.values() || sRowIndex.values().size() == 0) {
@@ -357,17 +135,6 @@ public class CommonUtils {
             }
         }
         return lRes;
-    }
-
-    /**
-     * Method to reset the algo State's. Used for testing.
-     */
-    private static void reset() {
-        sStatus = false;
-        sMinCost = Integer.MAX_VALUE;
-        sIMinCost = Integer.MAX_VALUE;
-        sRowIndex = null;
-        sResultRowIndex = null;
     }
 
     /**
@@ -393,62 +160,6 @@ public class CommonUtils {
      */
     public static final boolean isValidIndex( int[][] aInput, int aRow, int aCol ) {
         return (aRow >= 0 && aRow < aInput.length && aCol >= 0 && aCol < aInput[aRow].length);
-    }
-
-    /**
-     * Indicate the path made it all the way through the grid.
-     *
-     * @return True If it made through the grid.
-     */
-    public static final String getStatus() {
-        return sStatus ? "Yes" : "No";
-    }
-
-    /**
-     * Method to return the path-indexes in a map
-     *
-     * @return
-     */
-    public static Map<Integer, String> getResultIndex() {
-        return sResultRowIndex;
-    }
-
-    /**
-     * Return the shortest path represented as a sequence of 'n' delimited integers,
-     * each representing the rows traversed in turn.
-     *
-     * @return Path string.
-     */
-    public static final String getPath() {
-
-        if (null != sResultRowIndex && sResultRowIndex.size() > 0) {
-
-            StringBuilder lBuilder = new StringBuilder("[");
-
-            Collection<String> lList = sResultRowIndex.values();
-            int lSize = (null == lList) ? 0 : lList.size();
-
-            List<Integer> lResult = new ArrayList<>();
-
-            for (String lData : lList) {
-                lResult.add(Integer.parseInt(lData.split("--")[0]));
-            }
-            // Collections.sort(lResult);
-            int i = 0;
-            for (Integer lData : lResult) {
-                if (i == lSize - 1) {
-
-                    lBuilder.append("" + lData);
-                } else {
-                    lBuilder.append(lData + " ");
-                }
-                i++;
-            }
-            return lBuilder.append("]").toString();
-
-        } else {
-            return "[]";
-        }
     }
 
     /**
@@ -514,21 +225,4 @@ public class CommonUtils {
         return lData;
     }
 
-    /**
-     * Method to check whether the supplied input is valid.
-     * 
-     * @param str Input string
-     * @return True If the input is in valid format
-     */
-    public static boolean isValidInput( String str ) {
-        if (str == null) {
-            return false;
-        }
-        return str.matches("-?\\d+");
-    }
-
-    public static final void showInvalidWarning( Context aContext ) {
-        Toast.makeText(aContext, R.string.invalid_input, Toast.LENGTH_SHORT).show();
-
-    }
 }

@@ -7,6 +7,31 @@ package com.photon.codechallenge.shortestpath.utils;
 
 public class SampleInputs {
 
+    public static final int[][] DEFAULT_MATRIX = new int[][] {
+            {
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            }, {
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    }, {
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    }, {
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    }, {
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    }, {
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    }, {
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    }, {
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    }, {
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    }, {
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    }
+    };
+
+
     public static final int[][] MIN_COLUMN_TEST = new int[][] {
             {
                     3, 4, 1, 2, 8, 6

@@ -1,5 +1,5 @@
 
-package com.photon.codechallenge.shortestpath;
+package com.photon.codechallenge.shortestpath.ui;
 
 import android.graphics.Rect;
 import android.os.Bundle;
@@ -14,11 +14,18 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.photon.codechallenge.shortestpath.R;
 import com.photon.codechallenge.shortestpath.utils.CommonUtils;
+import com.photon.codechallenge.shortestpath.utils.LowCostPathFinder;
+import com.photon.codechallenge.shortestpath.utils.SampleInputs;
+import com.photon.codechallenge.shortestpath.utils.UiUtils;
 
 import java.util.Map;
 
-public class MainActivity extends AppCompatActivity {
+/**
+ * Activity to find the low cost path by moving across the 2D-Input grid.
+ */
+public class PathFinderActivity extends AppCompatActivity {
 
     private static final int UPDATE_RESULT = 100;
 
@@ -38,37 +45,13 @@ public class MainActivity extends AppCompatActivity {
 
     private LinearLayout mResultContainer = null;
 
-    private GridAdapter mAdapter = null;
+    private LowCostPathAdapter mAdapter = null;
 
     private RecyclerView.LayoutManager mLayoutManager = null;
 
     private Handler mShortestPathHandler = null;
 
     private Handler mUIHandler = null;
-
-    private static final int[][] DEFAULT_MATRIX = new int[][] {
-            {
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-            }, {
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-            }, {
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-            }, {
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-            }, {
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-            }, {
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-            }, {
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-            }, {
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-            }, {
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-            }, {
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-            }
-    };
 
     private int[][] mInput = null;
 
@@ -132,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
         int[][] lInput = (int[][]) getIntent().getExtras().getSerializable(
                 InputCollectorActivity.KEY_INPUT_EXTRA);
 
-        mInput = DEFAULT_MATRIX;
+        mInput = SampleInputs.DEFAULT_MATRIX;
         if (null != lInput) {
             mInput = lInput;
         }
@@ -145,22 +128,22 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Initialize the UI with the supplied 2D matrix.
      *
-     * @param aData
+     * @param aData 2D matrix
      */
     private void prepareUI( int[][] aData ) {
 
         if (aData == null || aData.length == 0 || aData.length > CommonUtils.UI_MAX_ROW) {
-            CommonUtils.showInvalidWarning(this);
+            UiUtils.showInvalidWarning(this);
             finish();
             return;
         }
 
         if (aData.length > 0 && aData[0].length > CommonUtils.UI_MAX_COLUMN) {
-            CommonUtils.showInvalidWarning(this);
+            UiUtils.showInvalidWarning(this);
             finish();
             return;
         }
-        mAdapter = new GridAdapter(this, CommonUtils.convertArrayToList(aData));
+        mAdapter = new LowCostPathAdapter(this, CommonUtils.convertArrayToList(aData));
 
         mRecyclerView.setAdapter(mAdapter);
         mLayoutManager = new GridLayoutManager(this, mInput[0].length);
@@ -175,8 +158,8 @@ public class MainActivity extends AppCompatActivity {
         mShortestPathHandler = new Handler(lThread.getLooper()) {
             @Override
             public void handleMessage( Message msg ) {
-                int lResult = CommonUtils
-                        .findShortestPath((int[][]) msg.obj, new CommonUtils.UIProgressListener() {
+                int lResult = LowCostPathFinder
+                        .findShortestPath((int[][]) msg.obj, new UIProgressListener() {
 
                             @Override
                             public void onProgressUpdate(
@@ -195,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
 
                 Message lMsg = mUIHandler.obtainMessage(UPDATE_RESULT);
                 lMsg.arg1 = lResult;
-                lMsg.obj = CommonUtils.getResultIndex();
+                lMsg.obj = LowCostPathFinder.getResultIndex();
                 mUIHandler.sendMessage(lMsg);
             }
         };
@@ -213,9 +196,9 @@ public class MainActivity extends AppCompatActivity {
      * @param aResultCost Minimum cost.
      */
     private void updateUI( int aResultCost ) {
-        mResultStatusTxtView.setText("" + CommonUtils.getStatus());
+        mResultStatusTxtView.setText("" + LowCostPathFinder.getStatus());
         mResultCostTxtView.setText("" + aResultCost);
-        mResultPathTxtView.setText("" + CommonUtils.getPath());
+        mResultPathTxtView.setText("" + LowCostPathFinder.getPath());
 
     }
 
@@ -244,7 +227,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    class SpacingDecoration extends RecyclerView.ItemDecoration {
+    /**
+     * Decorated to beautify the grids in the recycler view.
+     */
+    private static class SpacingDecoration extends RecyclerView.ItemDecoration {
 
         private int spanCount;
 

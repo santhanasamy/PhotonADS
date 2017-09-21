@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.photon.codechallenge.shortestpath.MainActivity"
+            android:name="com.photon.codechallenge.shortestpath.ui.PathFinderActivity"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -20,7 +20,7 @@
         </activity>
 
         <activity
-            android:name="com.photon.codechallenge.shortestpath.InputCollectorActivity"
+            android:name="com.photon.codechallenge.shortestpath.ui.InputCollectorActivity"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

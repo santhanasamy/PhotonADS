@@ -1,5 +1,5 @@
 
-package com.photon.codechallenge.shortestpath;
+package com.photon.codechallenge.shortestpath.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,13 +16,14 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.photon.codechallenge.shortestpath.R;
 import com.photon.codechallenge.shortestpath.utils.CommonUtils;
+import com.photon.codechallenge.shortestpath.utils.UiUtils;
 
 import java.util.HashMap;
 
 /**
- *
- *
+ * Activity to collect input from the User.
  */
 public class InputCollectorActivity extends AppCompatActivity {
 
@@ -165,7 +166,7 @@ public class InputCollectorActivity extends AppCompatActivity {
                 }
 
                 if (0 == mNoOfRows || 0 == mNoOfColumns) {
-                    CommonUtils.showInvalidWarning(InputCollectorActivity.this);
+                    UiUtils.showInvalidWarning(InputCollectorActivity.this);
                     return;
                 }
                 mInput = new int[mNoOfRows][mNoOfColumns];
@@ -190,7 +191,7 @@ public class InputCollectorActivity extends AppCompatActivity {
             public void onClick( View aView ) {
 
                 if (null == mInputMap || 0 == mInputMap.size()) {
-                    CommonUtils.showInvalidWarning(InputCollectorActivity.this);
+                    UiUtils.showInvalidWarning(InputCollectorActivity.this);
                     return;
                 }
                 for (Integer aRowIdx : mInputMap.keySet()) {
@@ -207,7 +208,7 @@ public class InputCollectorActivity extends AppCompatActivity {
                         }
                         String lStr = lValues[i];
 
-                        if (!TextUtils.isEmpty(lStr) && CommonUtils.isValidInput(lStr)) {
+                        if (!TextUtils.isEmpty(lStr) && UiUtils.isValidInput(lStr)) {
                             mInput[aRowIdx][i] = Integer.parseInt(lStr);
                         } else {
                             mInput[aRowIdx][i] = 0;
@@ -215,14 +216,11 @@ public class InputCollectorActivity extends AppCompatActivity {
                     }
                 }
 
-                //System.out.println(Arrays.deepToString(mInput));
-
-                Intent lIntent = new Intent(InputCollectorActivity.this, MainActivity.class);
+                Intent lIntent = new Intent(InputCollectorActivity.this, PathFinderActivity.class);
                 Bundle lBundle = new Bundle();
                 lBundle.putSerializable(InputCollectorActivity.KEY_INPUT_EXTRA, mInput);
                 lIntent.putExtras(lBundle);
                 startActivity(lIntent);
-                // finish();
             }
         });
         mClearButton.setOnClickListener(new View.OnClickListener() {
@@ -237,6 +235,11 @@ public class InputCollectorActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Method to insert rows based on the user given no of rows.
+     * 
+     * @param aNoOfRows No of rows to be inserted.
+     */
     private void insertRows( int aNoOfRows ) {
 
         if (aNoOfRows == 0) {
