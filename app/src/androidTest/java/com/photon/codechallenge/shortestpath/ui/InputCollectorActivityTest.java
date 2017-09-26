@@ -1,14 +1,17 @@
 
-package com.photon.codechallenge.shortestpath;
+package com.photon.codechallenge.shortestpath.ui;
 
 import android.app.Activity;
 import android.app.Instrumentation;
+import android.content.Intent;
 import android.os.SystemClock;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
+import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.test.suitebuilder.annotation.LargeTest;
 
-import com.photon.codechallenge.shortestpath.ui.InputCollectorActivity;
+import com.photon.codechallenge.shortestpath.R;
+import com.photon.codechallenge.shortestpath.TestConstants;
+import com.photon.codechallenge.shortestpath.TestUtils;
 import com.photon.codechallenge.shortestpath.utils.CommonUtils;
 import com.photon.codechallenge.shortestpath.utils.SampleInputs;
 
@@ -31,35 +34,31 @@ import static android.support.test.espresso.intent.matcher.IntentMatchers.isInte
 import static android.support.test.espresso.matcher.ViewMatchers.isEnabled;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static com.photon.codechallenge.shortestpath.TestConstants.LOWER_BOUND;
+import static com.photon.codechallenge.shortestpath.TestConstants.TEST_ACTION_DELAY;
+import static com.photon.codechallenge.shortestpath.TestConstants.TEST_EXE_DELAY;
+import static com.photon.codechallenge.shortestpath.TestConstants.UPPER_BOUND;
 import static org.hamcrest.CoreMatchers.not;
 
 /**
- * Tests to check the InputCollector Activity & PathFinderActivity.
+ *
  */
-
 @RunWith(AndroidJUnit4.class)
-@LargeTest
-public class LowCostPathTest {
+public class InputCollectorActivityTest {
 
-    public static final int LOWER_BOUND = 0;
-
-    public static final int UPPER_BOUND = 50;
-
-    private static final int TEST_ACTION_DELAY = 1000;
-
-    private static final int TEST_EXE_DELAY = 2000;
-
-//    @Rule
-//    public ActivityTestRule<InputCollectorActivity> mActivityRule = new ActivityTestRule(
-//            InputCollectorActivity.class);
+    /* @Test public void testStartInputCollectorActivity() { //Intents.init();
+     * //intending(hasComponent(hasShortClassName(".InputCollectorActivity"))); //
+     * intended(hasComponent(InputCollectorActivity.class.getName()), times(1));
+     * //Intents.release(); mActivityRule.launchActivity(null); } */
 
     @Rule
-    public IntentsTestRule<InputCollectorActivity> mActivityIntentRule = new IntentsTestRule<>(
+    public IntentsTestRule<InputCollectorActivity> mIntentRule = new IntentsTestRule<>(
             InputCollectorActivity.class);
 
     @Before
     public void stubAllExternalIntents() {
-        intending(not(isInternal())).respondWith(new Instrumentation.ActivityResult(Activity.RESULT_OK, null));
+        intending(not(isInternal()))
+                .respondWith(new Instrumentation.ActivityResult(Activity.RESULT_OK, null));
     }
 
     @Test
@@ -121,7 +120,7 @@ public class LowCostPathTest {
      * should be in the disabled state If the user changed row or column values
      * entered previously.
      */
-    public void testCalculateButtonIsDisabled() {
+    public void testCalculateButtonDisabledState() {
 
         String lRows = "" + CommonUtils.UI_MAX_ROW;
         String lColumn = "" + CommonUtils.UI_MAX_COLUMN;
@@ -130,12 +129,12 @@ public class LowCostPathTest {
         onView(withId(R.id.columns_edit_txt_view)).perform(typeText(lColumn), closeSoftKeyboard());
 
         onView(withId(R.id.generate_row_btn)).perform(click());
-        SystemClock.sleep(1000);
+        SystemClock.sleep(TestConstants.TEST_ACTION_DELAY);
         lRows = "" + (CommonUtils.UI_MAX_ROW - 1);
         onView(withId(R.id.rows_edit_txt_view)).perform(clearText()).perform(click()).perform(
                 typeText(lRows),
                 closeSoftKeyboard());
-        SystemClock.sleep(1000);
+        SystemClock.sleep(TestConstants.TEST_ACTION_DELAY);
         onView(withId(R.id.calculate_btn)).check(matches(not(isEnabled())));
         SystemClock.sleep(TEST_EXE_DELAY);
     }
@@ -178,8 +177,8 @@ public class LowCostPathTest {
      */
     public void testNoOfRowsGenerated() {
 
-        int lNoOfRows = Utils.getRandomColumnCountWithInBound();
-        int lNoOfColumns = Utils.getRandomRowCountWithInBound();
+        int lNoOfRows = TestUtils.getRandomColumnCountWithInBound();
+        int lNoOfColumns = TestUtils.getRandomRowCountWithInBound();
         String lRowStr = "" + lNoOfRows;
 
         onView(withId(R.id.rows_edit_txt_view)).perform(typeText(lRowStr), closeSoftKeyboard());
@@ -189,8 +188,8 @@ public class LowCostPathTest {
         onView(withId(R.id.generate_row_btn)).perform(click());
         SystemClock.sleep(TEST_ACTION_DELAY);
 
-        onView(withId(R.id.input_container))
-                .check(matches(Utils.withChildViewCount(lNoOfRows, withId(R.id.input_container))));
+        onView(withId(R.id.input_container)).check(
+                matches(TestUtils.withChildViewCount(lNoOfRows, withId(R.id.input_container))));
 
         SystemClock.sleep(TEST_EXE_DELAY);
     }
@@ -198,8 +197,8 @@ public class LowCostPathTest {
     @Test
     public void testWithRandomUserInputs() {
 
-        int lNoOfRows = Utils.getRandomColumnCountWithInBound();
-        int lNoOfColumns = Utils.getRandomRowCountWithInBound();
+        int lNoOfRows = TestUtils.getRandomColumnCountWithInBound();
+        int lNoOfColumns = TestUtils.getRandomRowCountWithInBound();
 
         onView(withId(R.id.rows_edit_txt_view))
                 .perform(typeText("" + lNoOfRows), closeSoftKeyboard());
@@ -237,8 +236,8 @@ public class LowCostPathTest {
     @Test
     public void testClearButton() {
 
-        int lNoOfRows = Utils.getRandomColumnCountWithInBound();
-        int lNoOfColumns = Utils.getRandomRowCountWithInBound();
+        int lNoOfRows = TestUtils.getRandomColumnCountWithInBound();
+        int lNoOfColumns = TestUtils.getRandomRowCountWithInBound();
 
         onView(withId(R.id.rows_edit_txt_view))
                 .perform(typeText("" + lNoOfRows), closeSoftKeyboard());
@@ -256,7 +255,7 @@ public class LowCostPathTest {
         onView(withId(R.id.columns_edit_txt_view)).check(matches(withText("")));
 
         onView(withId(R.id.input_container))
-                .check(matches(Utils.withChildViewCount(0, withId(R.id.input_container))));
+                .check(matches(TestUtils.withChildViewCount(0, withId(R.id.input_container))));
 
     }
 
@@ -264,38 +263,24 @@ public class LowCostPathTest {
      * Test the behaviour of the clear button.
      */
     @Test
-    public void testClearButtonInPathFinderActivity() {
+    public void testClearButtonWithClick() {
+        int lNoOfRows = TestUtils.getRandomColumnCountWithInBound();
+        int lNoOfColumns = TestUtils.getRandomRowCountWithInBound();
 
         onView(withId(R.id.rows_edit_txt_view))
-                .perform(typeText("" + SampleInputs.TEST_CASE_1.length), closeSoftKeyboard());
+                .perform(typeText("" + lNoOfRows), closeSoftKeyboard());
 
         onView(withId(R.id.columns_edit_txt_view))
-                .perform(typeText("" + SampleInputs.TEST_CASE_1[0].length), closeSoftKeyboard());
+                .perform(typeText("" + lNoOfColumns), closeSoftKeyboard());
 
         SystemClock.sleep(TEST_ACTION_DELAY);
         onView(withId(R.id.generate_row_btn)).perform(click());
-        SystemClock.sleep(TEST_ACTION_DELAY);
-
-        enterUserInput(SampleInputs.TEST_CASE_1);
-
-        onView(withId(R.id.calculate_btn)).perform(click());
-
-        SystemClock.sleep(TEST_ACTION_DELAY);
-
-        onView(withId(R.id.clear_btn)).perform(click());
-        onView(withId(R.id.result_status_lable_txt_view)).check(matches(withText("Status")));
-        onView(withId(R.id.result_status_txt_view)).check(matches(withText("")));
-
-        onView(withId(R.id.result_cost_txt_view)).check(matches(withText("")));
-
-        onView(withId(R.id.result_path_view)).check(matches(withText("")));
-
-        SystemClock.sleep(TEST_EXE_DELAY);
 
     }
 
     /**
-     * Test whether the intended activity{@link com.photon.codechallenge.shortestpath.ui.PathFinderActivity}
+     * Test whether the intended
+     * activity{@link com.photon.codechallenge.shortestpath.ui.PathFinderActivity}
      * is launched after clicking on the calculate button.
      */
     @Test
@@ -311,7 +296,7 @@ public class LowCostPathTest {
         onView(withId(R.id.generate_row_btn)).perform(click());
         SystemClock.sleep(TEST_ACTION_DELAY);
 
-        enterUserInput(SampleInputs.TEST_CASE_1);
+        TestUtils.enterUserInput(SampleInputs.TEST_CASE_1);
 
         onView(withId(R.id.calculate_btn)).perform(click());
 
@@ -319,129 +304,29 @@ public class LowCostPathTest {
         SystemClock.sleep(TEST_EXE_DELAY);
     }
 
-    @Test
-    public void test6X5NormalMatrix() {
-        testLowCostPath(SampleInputs.TEST_CASE_1, "16", "Yes", "[1 2 3 4 4 5]");
-    }
+    private static class InputCollectorRule<E extends InputCollectorActivity>
+            extends ActivityTestRule<E> {
 
-    @Test
-    public void test6X5NormalMatrixWithAdjacency() {
-        testLowCostPath(SampleInputs.TEST_CASE_2, "11", "Yes", "[1 2 1 5 4 5]");
-    }
-
-    @Test
-    public void test5X3MatrixWithNoValidPath() {
-        testLowCostPath(SampleInputs.TEST_CASE_3, "48", "No", "[1 1 1]");
-    }
-
-    @Test
-    public void test1X5NormalMatrix() {
-        testLowCostPath(SampleInputs.TEST_CASE_4, "26", "Yes", "[1 1 1 1 1]");
-    }
-
-    @Test
-    public void test5X1NormalMatrix() {
-        testLowCostPath(SampleInputs.TEST_CASE_5, "3", "Yes", "[4]");
-    }
-
-    @Test
-    public void testMatrixWithStartingGraterThanThreshold() {
-        testLowCostPath(SampleInputs.TEST_CASE_8, "0", "No", "[]");
-    }
-
-    @Test
-    public void testMatrixWithOneValueGraterThanThreshold() {
-        testLowCostPath(SampleInputs.TEST_CASE_9, "14", "Yes", "[3 2 1 3]");
-    }
-
-    @Test
-    public void testMatrixWithNegativeValues() {
-        testLowCostPath(SampleInputs.TEST_CASE_10, "0", "Yes", "[2 3 4 1]");
-    }
-
-    @Test
-    public void testMatrixWithCompletePathLowerCost() {
-        testLowCostPath(SampleInputs.TEST_CASE_11, "10", "Yes", "[4 4]");
-    }
-
-    @Test
-    public void testMatrixWithLongerIncompletePathShorterLowerCost() {
-        testLowCostPath(SampleInputs.TEST_CASE_12, "10", "No", "[4 4]");
-    }
-
-    @Test
-    public void testMatrixWithLargeNoOfColumns() {
-        testLowCostPath(SampleInputs.TEST_CASE_13, "10", "Yes", "[1 1 1 1 1 1 1 1 1 1]");
-
-    }
-
-    @Test
-    public void testMatrixWith3X5() {
-        testLowCostPath(SampleInputs.TEST_CASE_14, "48", "No", "[1 1 1]");
-    }
-
-    @Test
-    public void testMatrixWith5X6() {
-        testLowCostPath(SampleInputs.TEST_CASE_15, "11", "Yes", "[1 2 1 5 4 5]");
-    }
-
-    public void testLowCostPath(int[][] aInput, String aCost, String aStatus, String aPath) {
-
-        if (aInput == null) {
-            return;
+        public InputCollectorRule(Class<E> activityClass) {
+            super(activityClass);
         }
-        int mRows = aInput.length;
-        if (mRows == 0) {
-            return;
+
+        @Override
+        protected Intent getActivityIntent() {
+            return super.getActivityIntent();
         }
-        int mColumns = aInput[0].length;
 
-        onView(withId(R.id.rows_edit_txt_view)).perform(typeText("" + mRows), closeSoftKeyboard());
+        @Override
+        protected void afterActivityLaunched() {
+            super.afterActivityLaunched();
+            // maybe you want to do something here
+        }
 
-        onView(withId(R.id.columns_edit_txt_view))
-                .perform(typeText("" + mColumns), closeSoftKeyboard());
-
-        onView(withId(R.id.generate_row_btn)).perform(click());
-
-        enterUserInput(aInput);
-
-        SystemClock.sleep(TEST_ACTION_DELAY);
-        onView(withId(R.id.calculate_btn)).perform(click());
-
-        onView(withId(R.id.result_status_lable_txt_view)).check(matches(withText("Status")));
-        onView(withId(R.id.result_status_txt_view)).check(matches(withText(aStatus)));
-
-        onView(withId(R.id.result_cost_txt_view)).check(matches(withText(aCost)));
-
-        onView(withId(R.id.result_path_view)).check(matches(withText(aPath)));
-
-        SystemClock.sleep(TEST_EXE_DELAY);
-    }
-
-    /**
-     * Method to enter comma separated user input into the generated Rows.
-     *
-     * @param aInput 2D Input Matrix
-     */
-    private void enterUserInput(int[][] aInput) {
-
-        int lRows = aInput.length;
-        int lColumns = aInput[0].length;
-
-        for (int i = 0; i < lRows; i++) {
-            StringBuilder lBuilder = new StringBuilder();
-            for (int j = 0; j < lColumns; j++) {
-                if (j == lColumns - 1) {
-                    lBuilder.append(aInput[i][j]);
-                } else {
-                    lBuilder.append(aInput[i][j]).append(",");
-                }
-            }
-            SystemClock.sleep(TEST_ACTION_DELAY);
-            onView(withId(i))
-                    .perform(scrollTo(), typeText(lBuilder.toString()), closeSoftKeyboard());
+        @Override
+        protected void afterActivityFinished() {
+            super.afterActivityFinished();
+            // Clean up mocks
         }
 
     }
-
 }

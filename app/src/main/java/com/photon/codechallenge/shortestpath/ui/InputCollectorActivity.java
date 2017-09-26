@@ -1,6 +1,7 @@
 
 package com.photon.codechallenge.shortestpath.ui;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -22,8 +23,14 @@ import com.photon.codechallenge.shortestpath.utils.UiUtils;
 import java.util.HashMap;
 
 /**
- * Activity to collect inputs from the User.
+ * An {@link Activity} that represents an input form page where the user can
+ * provide row and column count for the input 2d-Matrix grid. By pressing
+ * generate button, user can see the lines equivalent to the no of rows entered
+ * previously. Input should be given in the form of comma separated integer
+ * values. The user entered value will be delivered to the
+ * {@link PathFinderActivity} by clicking on the 'calculate path' button.
  */
+
 public class InputCollectorActivity extends AppCompatActivity {
 
     public static final String KEY_INPUT_EXTRA = "Input Data";

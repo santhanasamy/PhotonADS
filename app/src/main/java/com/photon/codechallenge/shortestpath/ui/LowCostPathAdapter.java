@@ -166,7 +166,7 @@ public class LowCostPathAdapter extends RecyclerView.Adapter<LowCostPathAdapter.
 
         public GridViewHolder(View aView) {
             super(aView);
-            mGridItemTxtView = aView.findViewById(R.id.grid_item);
+            mGridItemTxtView = (TextView) aView.findViewById(R.id.grid_item);
         }
     }
 }

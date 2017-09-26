@@ -12,8 +12,6 @@ import com.photon.codechallenge.shortestpath.R;
 
 public class UiUtils {
 
-    private static float textSizeBasedOnTextLength;
-
     /**
      * Method to check whether the supplied input is valid.
      *
