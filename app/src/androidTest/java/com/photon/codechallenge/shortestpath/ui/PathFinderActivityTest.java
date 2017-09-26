@@ -2,7 +2,7 @@
 package com.photon.codechallenge.shortestpath.ui;
 
 import android.os.SystemClock;
-import android.support.test.espresso.intent.rule.IntentsTestRule;
+import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.LargeTest;
 
@@ -31,13 +31,9 @@ import static com.photon.codechallenge.shortestpath.TestConstants.TEST_EXE_DELAY
 @LargeTest
 public class PathFinderActivityTest {
 
-//    @Rule
-//    public ActivityTestRule<PathFinderActivity> mActivityRule = new ActivityTestRule(
-//            PathFinderActivity.class);
-
     @Rule
-    public IntentsTestRule<PathFinderActivity> mActivityIntentRule = new IntentsTestRule<>(
-            PathFinderActivity.class);
+    public ActivityTestRule<InputCollectorActivity> mActivityRule = new ActivityTestRule(
+            InputCollectorActivity.class, false, true);
 
     @Test
     public void test6X5NormalMatrix() {
@@ -105,7 +101,7 @@ public class PathFinderActivityTest {
         testLowCostPath(SampleInputs.TEST_CASE_15, "11", "Yes", "[1 2 1 5 4 5]");
     }
 
-    public void testLowCostPath( int[][] aInput, String aCost, String aStatus, String aPath ) {
+    public void testLowCostPath(int[][] aInput, String aCost, String aStatus, String aPath) {
 
         if (aInput == null) {
             return;
@@ -170,5 +166,4 @@ public class PathFinderActivityTest {
 
         SystemClock.sleep(TEST_EXE_DELAY);
     }
-
 }

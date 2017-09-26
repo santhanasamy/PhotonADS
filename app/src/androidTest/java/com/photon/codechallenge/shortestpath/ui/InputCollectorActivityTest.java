@@ -3,10 +3,8 @@ package com.photon.codechallenge.shortestpath.ui;
 
 import android.app.Activity;
 import android.app.Instrumentation;
-import android.content.Intent;
 import android.os.SystemClock;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
-import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.photon.codechallenge.shortestpath.R;
@@ -304,29 +302,4 @@ public class InputCollectorActivityTest {
         SystemClock.sleep(TEST_EXE_DELAY);
     }
 
-    private static class InputCollectorRule<E extends InputCollectorActivity>
-            extends ActivityTestRule<E> {
-
-        public InputCollectorRule(Class<E> activityClass) {
-            super(activityClass);
-        }
-
-        @Override
-        protected Intent getActivityIntent() {
-            return super.getActivityIntent();
-        }
-
-        @Override
-        protected void afterActivityLaunched() {
-            super.afterActivityLaunched();
-            // maybe you want to do something here
-        }
-
-        @Override
-        protected void afterActivityFinished() {
-            super.afterActivityFinished();
-            // Clean up mocks
-        }
-
-    }
-}
+ }
